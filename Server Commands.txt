@@ -1,0 +1,12 @@
+Server Commands
+
+/rename [ID] [NewID]
+/announce [Message]
+/kill_user [ID]
+/op [ID]
+/deop [ID]
+/kill_server
+/stop_server
+/quit [ID]
+/kill [ID]
+/exit [ID]

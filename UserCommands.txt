@@ -1,0 +1,12 @@
+User Commands
+
+/rename [NewID]
+/kill_user [ID] *
+/op [ID] *
+/deop [ID] *
+/kill_server *
+/stop_server *
+/quit
+/kill
+/exit
+/rename_server [Name]
