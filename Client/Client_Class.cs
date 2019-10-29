@@ -17,10 +17,10 @@ namespace Client
         NetworkStream stream;
         MemoryStream memoryStream = new MemoryStream();
         BinaryFormatter binaryFormatter = new BinaryFormatter();
-        //StreamReader reader;
-        BinaryReader reader;
-        //StreamWriter writer;
-        BinaryWriter writer;
+        StreamReader reader;
+        BinaryReader breader;
+        StreamWriter writer;
+        BinaryWriter bwriter;
         Thread readerThread;
         ChatWindow chatWindow;
         string idTemp = "TEMP";
@@ -39,11 +39,11 @@ namespace Client
                 idTemp = id;
                 tcpClient.Connect(ipAddress, port);
                 stream = tcpClient.GetStream();
-                //reader = new StreamReader(stream, Encoding.UTF8);
-                reader = new BinaryReader(stream);
-                //writer = new StreamWriter(stream, Encoding.UTF8);
-                writer = new BinaryWriter(stream);
-                readerThread = new Thread(Recieve); // Process Server Response
+                reader = new StreamReader(stream, Encoding.UTF8);
+                breader = new BinaryReader(stream);
+                writer = new StreamWriter(stream, Encoding.UTF8);
+                bwriter = new BinaryWriter(stream);
+                readerThread = new Thread(Receive); // Process Server Response
                 Application.Run(chatWindow);
             }
             catch
@@ -92,9 +92,9 @@ namespace Client
             binaryFormatter.Serialize(memoryStream, data);
             byte[] buffer = memoryStream.GetBuffer();
 
-            writer.Write(buffer.Length);
-            writer.Write(buffer);
-            writer.Flush();
+            bwriter.Write(buffer.Length);
+            bwriter.Write(buffer);
+            bwriter.Flush();
         }
         
         public Packet CreatePacket(string message)
@@ -104,11 +104,13 @@ namespace Client
             return data;
         }
 
-        public void Recieve()
+        public void Receive()
         {
             int noOfIncomingBytes;
-            while ((noOfIncomingBytes = reader.ReadInt32()) != 0)
+            while ((noOfIncomingBytes = breader.ReadInt32()) != 0)
             {
+                byte[] buffer = breader.ReadBytes(noOfIncomingBytes);
+                memoryStream.Write(buffer, 0, noOfIncomingBytes);
                 Packet rawPacket = binaryFormatter.Deserialize(memoryStream) as Packet;
                 switch (rawPacket.type)
                 {
