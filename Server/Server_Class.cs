@@ -128,18 +128,29 @@ namespace Server
 
         void Send(Packet data, Server_Client client)
         {
+            memoryStream = new MemoryStream();
             binaryFormatter.Serialize(memoryStream, data);
+            memoryStream.Flush();
             byte[] buffer = memoryStream.GetBuffer();
+            memoryStream = new MemoryStream();
 
             client.bwriter.Write(buffer.Length);
             client.bwriter.Write(buffer);
             client.bwriter.Flush();
         }
 
-        public Packet CreatePacket(string message)
+        public Packet CreatePacket(string message, PacketType packetType)
         {
             Packet data;
-            data = new ChatMessagePacket(message);
+            switch (packetType)
+            {
+                case PacketType.INIT_MESSAGE:
+                    data = new InitMessagePacket(message);
+                    break;
+                default:
+                    data = new ChatMessagePacket(message);
+                    break;
+            }
             return data;
         }
 
@@ -150,7 +161,9 @@ namespace Server
             {
                 byte[] buffer = client.breader.ReadBytes(noOfIncomingBytes);
                 memoryStream.Write(buffer, 0, noOfIncomingBytes);
+                memoryStream.Position = 0;
                 Packet rawPacket = binaryFormatter.Deserialize(memoryStream) as Packet;
+                memoryStream = new MemoryStream();
                 switch (rawPacket.type)
                 {
                     case PacketType.CHAT_MESSAGE:
@@ -166,7 +179,7 @@ namespace Server
                         }
                     case PacketType.INIT_MESSAGE:
                         {
-                            ChatMessagePacket packet = (ChatMessagePacket)rawPacket;
+                            InitMessagePacket packet = (InitMessagePacket)rawPacket;
                             SetClientID(client, packet.message);
                             return;
                         }
@@ -180,6 +193,7 @@ namespace Server
             Server_Client client = (Server_Client)clientObj;
             if (client != null)
             {
+                Receive(client);
                 //string receivedMessage;
                 //while ((receivedMessage = client.reader.ReadLine()) != null) // Wait for name to be given
                 //{
@@ -294,7 +308,10 @@ namespace Server
         {
             if (!command.StartsWith("/"))
             {
-                Log("Log: " + command);
+                if (command.Length != 0 && !command.StartsWith("\n"))
+                {
+                    Log("Log: " + command);
+                }
             }
             else
             {
@@ -654,12 +671,18 @@ namespace Server
         }
         void Log(string text)
         {
-            serverWindow.UpdateServerLog(text);
+            if (text.Length != 0 && !text.StartsWith("\n"))
+            {
+                serverWindow.UpdateServerLog(text);
+            }
         }
         void Announce(string text)
         {
-            Log("Server: " + text);
-            MessageAllClients("Server: " + text);
+            if (text.Length != 0 && !text.StartsWith("\n"))
+            {
+                Log("Server: " + text);
+                MessageAllClients("Server: " + text);
+            }
         }
         bool ClientExists(string clientID)
         {
@@ -676,7 +699,7 @@ namespace Server
         {
             if (clientIndex >= 0 && clientIndex < clients.Count)
             {
-                Send(CreatePacket(message), clients[clientIndex]);
+                Send(CreatePacket(message, PacketType.CHAT_MESSAGE), clients[clientIndex]);
                 //clients[clientIndex].writer.WriteLine(message);
                 //clients[clientIndex].writer.Flush();
             }
@@ -687,7 +710,7 @@ namespace Server
         }
         void MessageClient(string message, Server_Client client)
         {
-            Send(CreatePacket(message), client);
+            Send(CreatePacket(message,PacketType.CHAT_MESSAGE), client);
             //client.writer.WriteLine(message);
             //client.writer.Flush();
         }
@@ -695,7 +718,7 @@ namespace Server
         {
             if (ClientExists(clientID))
             {
-                Send(CreatePacket(message), GetClientFromID(clientID));
+                Send(CreatePacket(message, PacketType.CHAT_MESSAGE), GetClientFromID(clientID));
                 //GetClientFromID(clientID).writer.WriteLine(message);
                 //GetClientFromID(clientID).writer.Flush();
             }

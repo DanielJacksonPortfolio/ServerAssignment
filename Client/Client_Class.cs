@@ -17,9 +17,7 @@ namespace Client
         NetworkStream stream;
         MemoryStream memoryStream = new MemoryStream();
         BinaryFormatter binaryFormatter = new BinaryFormatter();
-        StreamReader reader;
         BinaryReader breader;
-        StreamWriter writer;
         BinaryWriter bwriter;
         Thread readerThread;
         ChatWindow chatWindow;
@@ -39,9 +37,7 @@ namespace Client
                 idTemp = id;
                 tcpClient.Connect(ipAddress, port);
                 stream = tcpClient.GetStream();
-                reader = new StreamReader(stream, Encoding.UTF8);
                 breader = new BinaryReader(stream);
-                writer = new StreamWriter(stream, Encoding.UTF8);
                 bwriter = new BinaryWriter(stream);
                 readerThread = new Thread(Receive); // Process Server Response
                 Application.Run(chatWindow);
@@ -59,7 +55,7 @@ namespace Client
             try
             {
                 readerThread.Start();
-                ProcessMessage(idTemp);
+                ProcessMessage(idTemp,PacketType.INIT_MESSAGE);
             }
             catch
             {
@@ -73,13 +69,11 @@ namespace Client
             tcpClient.Close();
         }
 
-        public void ProcessMessage(string message)
+        public void ProcessMessage(string message, PacketType packetType)
         {
             if (message.Length != 0 && !message.StartsWith("\n"))
             {
-                Send(CreatePacket(message));
-                //writer.WriteLine(message);
-                //writer.Flush();
+                Send(CreatePacket(message, packetType));
             }
             else
             {
@@ -89,18 +83,37 @@ namespace Client
 
         public void Send(Packet data)
         {
-            binaryFormatter.Serialize(memoryStream, data);
-            byte[] buffer = memoryStream.GetBuffer();
+            try
+            {
+                memoryStream = new MemoryStream();
+                binaryFormatter.Serialize(memoryStream, data);
+                memoryStream.Flush();
+                byte[] buffer = memoryStream.GetBuffer();
+                memoryStream = new MemoryStream();
 
-            bwriter.Write(buffer.Length);
-            bwriter.Write(buffer);
-            bwriter.Flush();
+                bwriter.Write(buffer.Length);
+                bwriter.Write(buffer);
+                bwriter.Flush();
+            }
+            catch
+            {
+                Console.WriteLine("Send Failed");
+                chatWindow.CloseForm();
+            }
         }
         
-        public Packet CreatePacket(string message)
+        public Packet CreatePacket(string message, PacketType packetType)
         {
             Packet data;
-            data = new ChatMessagePacket(message);
+            switch (packetType)
+            {
+                case PacketType.INIT_MESSAGE:
+                    data = new InitMessagePacket(message);
+                    break;
+                default:
+                    data = new ChatMessagePacket(message);
+                    break;
+            }
             return data;
         }
 
@@ -111,21 +124,29 @@ namespace Client
             {
                 byte[] buffer = breader.ReadBytes(noOfIncomingBytes);
                 memoryStream.Write(buffer, 0, noOfIncomingBytes);
+                memoryStream.Position = 0;
                 Packet rawPacket = binaryFormatter.Deserialize(memoryStream) as Packet;
+                memoryStream = new MemoryStream();
                 switch (rawPacket.type)
                 {
                     case PacketType.CHAT_MESSAGE:
-                        ChatMessagePacket packet = (ChatMessagePacket)rawPacket;
-                        ProcessServerResponse(packet.message);
-                        break;
+                        {
+                            ChatMessagePacket packet = (ChatMessagePacket)rawPacket;
+                            ProcessServerResponse(packet.message);
+                            break;
+                        }
+                    case PacketType.INIT_MESSAGE:
+                        {
+                            InitMessagePacket packet = (InitMessagePacket)rawPacket;
+                            ProcessServerResponse(packet.message);
+                            return;
+                        }
                 }
             }
         }
 
         void ProcessServerResponse(string serverText)
         {
-            //while ((serverText = reader.ReadLine()) != null)
-            //{
             switch(serverText)
             {
                 case "CODE::KILL":
@@ -143,7 +164,6 @@ namespace Client
             }
 
             chatWindow.UpdateServerLog(serverText);
-            //}
 
         }
 
@@ -162,8 +182,8 @@ namespace Client
                 {
                     tcpClient.Dispose();
                     chatWindow.Dispose();
-                    reader.Dispose();
-                    writer.Dispose();
+                    breader.Dispose();
+                    bwriter.Dispose();
                     stream.Dispose();
                 }
                 disposed = true;

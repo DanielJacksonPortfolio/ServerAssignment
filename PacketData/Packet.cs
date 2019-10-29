@@ -33,6 +33,17 @@ namespace PacketData
         }
     }
     [Serializable]
+    public class InitMessagePacket : Packet
+    {
+        public string message = String.Empty;
+
+        public InitMessagePacket(string message)
+        {
+            this.type = PacketType.INIT_MESSAGE;
+            this.message = message;
+        }
+    }
+    [Serializable]
     public class EmptyPacket : Packet
     {
         public EmptyPacket()

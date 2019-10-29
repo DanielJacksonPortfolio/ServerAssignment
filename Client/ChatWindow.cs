@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using PacketData;
 
 namespace Client
 {
@@ -69,7 +70,7 @@ namespace Client
 
         private void Submit_Click(object sender, EventArgs e)
         {
-            client.ProcessMessage(InputBox.Text);
+            client.ProcessMessage(InputBox.Text, PacketType.CHAT_MESSAGE);
             InputBox.Text = "";
         }
 
@@ -77,7 +78,7 @@ namespace Client
         {
             if (e.KeyCode == Keys.Enter)
             {
-                client.ProcessMessage(InputBox.Text);
+                client.ProcessMessage(InputBox.Text, PacketType.CHAT_MESSAGE);
                 InputBox.Text = "";
             }
         }
@@ -97,9 +98,8 @@ namespace Client
 
         private void ChatWindow_FormClosed(object sender, FormClosedEventArgs e)
         {
-            client.ProcessMessage("/kill");
+            client.ProcessMessage("/kill", PacketType.CHAT_MESSAGE);
             client.Stop();
-            CloseForm();
         }
 
         private void ServerLog_LinkClicked(object sender, LinkClickedEventArgs e)
