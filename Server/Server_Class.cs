@@ -135,6 +135,7 @@ namespace Server
                         string returnCommand = ProcessClientMessage(receivedMessage, clients.IndexOf(client));
                         if (returnCommand == "CODE::KILL" || returnCommand == "CODE::SERVER_DEAD")
                         {
+                            Announce(client.ID + " Disconnected");
                             break;
                         }
                     }

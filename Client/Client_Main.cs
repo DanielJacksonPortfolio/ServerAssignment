@@ -13,9 +13,14 @@ namespace Client
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new NewUserSetup());
-
+            StartLoop();
         }
+
+        public static void StartLoop()
+        {
+            Application.Run(new NewUserSetup());
+        }
+
         public static void ConnectToServer(object args)
         {
             Client_Client client = new Client_Client();
@@ -25,13 +30,13 @@ namespace Client
             string ip = (string)argsArray.GetValue(0);
             string portString = (string)argsArray.GetValue(1);
             string id = (string)argsArray.GetValue(2);
-            //int port = 4440;
             Int32.TryParse(portString, out int port);
             if (!client.Connect(ip, port,id))
             {
                 Console.WriteLine("Error Failed to Connect");
             }
             client.Dispose();
+            StartLoop();
         }
     }
 }

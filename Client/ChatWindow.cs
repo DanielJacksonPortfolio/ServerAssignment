@@ -97,7 +97,9 @@ namespace Client
 
         private void ChatWindow_FormClosed(object sender, FormClosedEventArgs e)
         {
+            client.ProcessMessage("/kill");
             client.Stop();
+            CloseForm();
         }
 
         private void ServerLog_LinkClicked(object sender, LinkClickedEventArgs e)

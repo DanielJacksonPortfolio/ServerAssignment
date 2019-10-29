@@ -6,6 +6,7 @@ using System.Net.Sockets;
 using System.Net;
 using System.IO;
 using System.Windows.Forms;
+using PacketData;
 
 namespace Client
 {
@@ -72,6 +73,11 @@ namespace Client
                 writer.WriteLine(message);
                 writer.Flush();
             }
+        }
+
+        public void Send(Packet data)
+        {
+
         }
 
         void ProccessServerResponse()
