@@ -6,6 +6,7 @@ using System.Net.Sockets;
 using System.Net;
 using System.IO;
 using System.Windows.Forms;
+using System.Runtime.Serialization.Formatters.Binary;
 using PacketData;
 
 namespace Client
@@ -14,8 +15,12 @@ namespace Client
     {
         TcpClient tcpClient;
         NetworkStream stream;
-        StreamReader reader;
-        StreamWriter writer;
+        MemoryStream memoryStream = new MemoryStream();
+        BinaryFormatter binaryFormatter = new BinaryFormatter();
+        //StreamReader reader;
+        BinaryReader reader;
+        //StreamWriter writer;
+        BinaryWriter writer;
         Thread readerThread;
         ChatWindow chatWindow;
         string idTemp = "TEMP";
@@ -34,9 +39,11 @@ namespace Client
                 idTemp = id;
                 tcpClient.Connect(ipAddress, port);
                 stream = tcpClient.GetStream();
-                reader = new StreamReader(stream, Encoding.UTF8);
-                writer = new StreamWriter(stream, Encoding.UTF8);
-                readerThread = new Thread(ProccessServerResponse);
+                //reader = new StreamReader(stream, Encoding.UTF8);
+                reader = new BinaryReader(stream);
+                //writer = new StreamWriter(stream, Encoding.UTF8);
+                writer = new BinaryWriter(stream);
+                readerThread = new Thread(Recieve); // Process Server Response
                 Application.Run(chatWindow);
             }
             catch
@@ -70,41 +77,75 @@ namespace Client
         {
             if (message.Length != 0 && !message.StartsWith("\n"))
             {
-                writer.WriteLine(message);
-                writer.Flush();
+                Send(CreatePacket(message));
+                //writer.WriteLine(message);
+                //writer.Flush();
+            }
+            else
+            {
+                Send(new EmptyPacket());
             }
         }
 
         public void Send(Packet data)
         {
+            binaryFormatter.Serialize(memoryStream, data);
+            byte[] buffer = memoryStream.GetBuffer();
 
+            writer.Write(buffer.Length);
+            writer.Write(buffer);
+            writer.Flush();
+        }
+        
+        public Packet CreatePacket(string message)
+        {
+            Packet data;
+            data = new ChatMessagePacket(message);
+            return data;
         }
 
-        void ProccessServerResponse()
+        public void Recieve()
         {
-            string serverText;
-            while ((serverText = reader.ReadLine()) != null)
+            int noOfIncomingBytes;
+            while ((noOfIncomingBytes = reader.ReadInt32()) != 0)
             {
-                switch(serverText)
+                Packet rawPacket = binaryFormatter.Deserialize(memoryStream) as Packet;
+                switch (rawPacket.type)
                 {
-                    case "CODE::KILL":
-                        {
-                            chatWindow.CloseForm();
-                            break;
-                        }
-                    case "CODE::SERVER_DEAD":
-                        {
-                            serverText = "Disconnected from Server - Reason: Force Termination";
-                            chatWindow.UpdateServerLog(serverText);
-                            this.Stop();
-                            break;
-                        }
+                    case PacketType.CHAT_MESSAGE:
+                        ChatMessagePacket packet = (ChatMessagePacket)rawPacket;
+                        ProcessServerResponse(packet.message);
+                        break;
                 }
+            }
+        }
 
-                chatWindow.UpdateServerLog(serverText);
+        void ProcessServerResponse(string serverText)
+        {
+            //while ((serverText = reader.ReadLine()) != null)
+            //{
+            switch(serverText)
+            {
+                case "CODE::KILL":
+                    {
+                        chatWindow.CloseForm();
+                        break;
+                    }
+                case "CODE::SERVER_DEAD":
+                    {
+                        serverText = "Disconnected from Server - Reason: Force Termination";
+                        chatWindow.UpdateServerLog(serverText);
+                        this.Stop();
+                        break;
+                    }
             }
 
+            chatWindow.UpdateServerLog(serverText);
+            //}
+
         }
+
+
         public void Dispose()
         {
             Dispose(true);

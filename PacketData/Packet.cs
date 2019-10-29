@@ -6,16 +6,18 @@ namespace PacketData
 {
     public enum PacketType
     {
+        INVALID,
         EMPTY,
         CHAT_MESSAGE,
         NICKNAME,
-        USERLIST
+        USERLIST,
+        INIT_MESSAGE
     }
 
     [Serializable]
     public class Packet
     {
-        public PacketType type = PacketType.EMPTY;
+        public PacketType type = PacketType.INVALID;
     }
 
 
@@ -28,6 +30,14 @@ namespace PacketData
         {
             this.type = PacketType.CHAT_MESSAGE;
             this.message = message;
+        }
+    }
+    [Serializable]
+    public class EmptyPacket : Packet
+    {
+        public EmptyPacket()
+        {
+            this.type = PacketType.EMPTY;
         }
     }
 }

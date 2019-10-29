@@ -8,6 +8,8 @@ using System.Linq;
 using System.IO;
 using System.Windows.Forms;
 using System.Diagnostics;
+using System.Runtime.Serialization.Formatters.Binary;
+using PacketData;
 
 namespace Server
 {
@@ -19,16 +21,20 @@ namespace Server
         bool op = false;
         bool disposed = false;
         public string ID { get; set; }
-        public StreamReader reader { get; private set; }
-        public StreamWriter writer { get; private set; }
+        //public StreamReader reader { get; private set; }
+        public BinaryReader reader { get; private set; }
+        //public StreamWriter writer { get; private set; }
+        public BinaryWriter writer { get; private set; }
 
         public Server_Client(Socket socket)
         {
             this.socket = socket;
             ID = "";
             stream = new NetworkStream(this.socket, true);
-            reader = new StreamReader(stream, Encoding.UTF8);
-            writer = new StreamWriter(stream, Encoding.UTF8);
+            //reader = new StreamReader(stream, Encoding.UTF8);
+            reader = new BinaryReader(stream);
+            //writer = new StreamWriter(stream, Encoding.UTF8);
+            writer = new BinaryWriter(stream);
         }
 
         public void Close()
@@ -73,6 +79,8 @@ namespace Server
         string ip;
         string port;
         bool disposed = false;
+        MemoryStream memoryStream = new MemoryStream();
+        BinaryFormatter binaryFormatter = new BinaryFormatter();
         public Server_Server()
         {
             connectorThread = new Thread(CheckForConnections);
@@ -117,28 +125,78 @@ namespace Server
                 }
             }
         }
+
+        void Send(Packet data, Server_Client client)
+        {
+            binaryFormatter.Serialize(memoryStream, data);
+            byte[] buffer = memoryStream.GetBuffer();
+
+            client.writer.Write(buffer.Length);
+            client.writer.Write(buffer);
+            client.writer.Flush();
+        }
+
+        public Packet CreatePacket(string message)
+        {
+            Packet data;
+            data = new ChatMessagePacket(message);
+            return data;
+        }
+
+        void Recieve(Server_Client client)
+        {
+            int noOfIncomingBytes;
+            while ((noOfIncomingBytes = client.reader.ReadInt32()) != 0)
+            {
+                Packet rawPacket = binaryFormatter.Deserialize(memoryStream) as Packet;
+                switch (rawPacket.type)
+                {
+                    case PacketType.CHAT_MESSAGE:
+                        {
+                            ChatMessagePacket packet = (ChatMessagePacket)rawPacket;
+                            string returnCommand = ProcessClientMessage(packet.message, clients.IndexOf(client));
+                            if (returnCommand == "CODE::KILL" || returnCommand == "CODE::SERVER_DEAD")
+                            {
+                                Announce(client.ID + " Disconnected");
+                                return;
+                            }
+                            break;
+                        }
+                    case PacketType.INIT_MESSAGE:
+                        {
+                            ChatMessagePacket packet = (ChatMessagePacket)rawPacket;
+                            SetClientID(client, packet.message);
+                            return;
+                        }
+                }
+            }
+        }
+
+
         void ClientMethod(object clientObj)
         {
             Server_Client client = (Server_Client)clientObj;
             if (client != null)
             {
-                string receivedMessage;
-                while ((receivedMessage = client.reader.ReadLine()) != null) // Wait for name to be given
-                {
-                    SetClientID(client, receivedMessage);
-                    break;
-                }
+                Recieve(client);
+                //string receivedMessage;
+                //while ((receivedMessage = client.reader.ReadLine()) != null) // Wait for name to be given
+                //{
+                //    SetClientID(client, receivedMessage);
+                //    break;
+                //}
                 try
                 {
-                    while ((receivedMessage = client.reader.ReadLine()) != null) // Main Loop
-                    {
-                        string returnCommand = ProcessClientMessage(receivedMessage, clients.IndexOf(client));
-                        if (returnCommand == "CODE::KILL" || returnCommand == "CODE::SERVER_DEAD")
-                        {
-                            Announce(client.ID + " Disconnected");
-                            break;
-                        }
-                    }
+                    Recieve(client);
+                    //while ((receivedMessage = client.reader.ReadLine()) != null) // Main Loop
+                    //{
+                    //    string returnCommand = ProcessClientMessage(receivedMessage, clients.IndexOf(client));
+                    //    if (returnCommand == "CODE::KILL" || returnCommand == "CODE::SERVER_DEAD")
+                    //    {
+                    //        Announce(client.ID + " Disconnected");
+                    //        break;
+                    //    }
+                    //}
                 }
                 catch
                 {
@@ -617,7 +675,8 @@ namespace Server
         {
             if (clientIndex >= 0 && clientIndex < clients.Count)
             {
-                clients[clientIndex].writer.WriteLine(message);
+                Send(CreatePacket(message), clients[clientIndex]);
+                //clients[clientIndex].writer.WriteLine(message);
                 clients[clientIndex].writer.Flush();
             }
             else
@@ -627,14 +686,16 @@ namespace Server
         }
         void MessageClient(string message, Server_Client client)
         {
-            client.writer.WriteLine(message);
+            Send(CreatePacket(message), client);
+            //client.writer.WriteLine(message);
             client.writer.Flush();
         }
         void MessageClient(string message, string clientID)
         {
             if (ClientExists(clientID))
             {
-                GetClientFromID(clientID).writer.WriteLine(message);
+                Send(CreatePacket(message), GetClientFromID(clientID));
+                //GetClientFromID(clientID).writer.WriteLine(message);
                 GetClientFromID(clientID).writer.Flush();
             }
             else
