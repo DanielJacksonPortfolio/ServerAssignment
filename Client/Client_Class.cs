@@ -23,11 +23,13 @@ namespace Client
         ChatWindow chatWindow;
         string idTemp = "TEMP";
         bool disposed = false;
+        bool connected = false;
 
-        public Client_Client()
+        public Client_Client(ChatWindow chatWindow)
         {
             tcpClient = new TcpClient();
-            chatWindow = new ChatWindow(this);
+            this.chatWindow = chatWindow;
+            this.chatWindow.InitializeClient(this);
         }
 
         public bool Connect(string ipAddress, int port, string id)
@@ -39,12 +41,13 @@ namespace Client
                 stream = tcpClient.GetStream();
                 breader = new BinaryReader(stream);
                 bwriter = new BinaryWriter(stream);
+                connected = true;
                 readerThread = new Thread(Receive); // Process Server Response
-                Application.Run(chatWindow);
+                //Application.Run(chatWindow);
             }
-            catch
+            catch(SocketException e)
             {
-                Console.WriteLine("Exception: Connection error");
+                Console.WriteLine("Exception: Connection error - "+e.Message);
                 return false;
             }
             return true;
@@ -52,15 +55,8 @@ namespace Client
 
         public void Run()
         {
-            try
-            {
-                readerThread.Start();
-                ProcessMessage(idTemp,PacketType.INIT_MESSAGE);
-            }
-            catch
-            {
-                Console.WriteLine("Client Exitted");
-            }
+            readerThread.Start();
+            ProcessMessage(idTemp,PacketType.INIT_MESSAGE);
         }
 
         public void Stop()
@@ -83,22 +79,28 @@ namespace Client
 
         public void Send(Packet data)
         {
-            try
+            if (connected)
             {
-                memoryStream = new MemoryStream();
-                binaryFormatter.Serialize(memoryStream, data);
-                memoryStream.Flush();
-                byte[] buffer = memoryStream.GetBuffer();
-                memoryStream = new MemoryStream();
+                try
+                {
+                    memoryStream = new MemoryStream();
+                    binaryFormatter.Serialize(memoryStream, data);
+                    memoryStream.Flush();
+                    byte[] buffer = memoryStream.GetBuffer();
+                    memoryStream = new MemoryStream();
 
-                bwriter.Write(buffer.Length);
-                bwriter.Write(buffer);
-                bwriter.Flush();
+                    bwriter.Write(buffer.Length);
+                    bwriter.Write(buffer);
+                    bwriter.Flush();
+                }
+                catch (IOException e)
+                {
+                    Console.WriteLine("Send Failed - " + e.Message);
+                }
             }
-            catch
+            else
             {
-                Console.WriteLine("Send Failed");
-                chatWindow.CloseForm();
+                chatWindow.UpdateServerLog("Cannot Send Message - No Connection to server");
             }
         }
         
@@ -120,28 +122,35 @@ namespace Client
         public void Receive()
         {
             int noOfIncomingBytes;
-            while ((noOfIncomingBytes = breader.ReadInt32()) != 0)
+            try
             {
-                byte[] buffer = breader.ReadBytes(noOfIncomingBytes);
-                memoryStream.Write(buffer, 0, noOfIncomingBytes);
-                memoryStream.Position = 0;
-                Packet rawPacket = binaryFormatter.Deserialize(memoryStream) as Packet;
-                memoryStream = new MemoryStream();
-                switch (rawPacket.type)
+                while ((noOfIncomingBytes = breader.ReadInt32()) != 0)
                 {
-                    case PacketType.CHAT_MESSAGE:
-                        {
-                            ChatMessagePacket packet = (ChatMessagePacket)rawPacket;
-                            ProcessServerResponse(packet.message);
-                            break;
-                        }
-                    case PacketType.INIT_MESSAGE:
-                        {
-                            InitMessagePacket packet = (InitMessagePacket)rawPacket;
-                            ProcessServerResponse(packet.message);
-                            return;
-                        }
+                    byte[] buffer = breader.ReadBytes(noOfIncomingBytes);
+                    memoryStream.Write(buffer, 0, noOfIncomingBytes);
+                    memoryStream.Position = 0;
+                    Packet rawPacket = binaryFormatter.Deserialize(memoryStream) as Packet;
+                    memoryStream = new MemoryStream();
+                    switch (rawPacket.type)
+                    {
+                        case PacketType.CHAT_MESSAGE:
+                            {
+                                ChatMessagePacket packet = (ChatMessagePacket)rawPacket;
+                                ProcessServerResponse(packet.message);
+                                break;
+                            }
+                        case PacketType.INIT_MESSAGE:
+                            {
+                                InitMessagePacket packet = (InitMessagePacket)rawPacket;
+                                ProcessServerResponse(packet.message);
+                                return;
+                            }
+                    }
                 }
+            }
+            catch(IOException e)
+            {
+                Console.WriteLine("Receive Failed - "+e.Message);
             }
         }
 
@@ -158,6 +167,7 @@ namespace Client
                     {
                         serverText = "Disconnected from Server - Reason: Force Termination";
                         chatWindow.UpdateServerLog(serverText);
+                        connected = false;
                         this.Stop();
                         break;
                     }
@@ -180,11 +190,18 @@ namespace Client
             {
                 if (disposing)
                 {
-                    tcpClient.Dispose();
-                    chatWindow.Dispose();
-                    breader.Dispose();
-                    bwriter.Dispose();
-                    stream.Dispose();
+                    try
+                    {
+                        tcpClient.Dispose();
+                        chatWindow.Dispose();
+                        breader.Dispose();
+                        bwriter.Dispose();
+                        stream.Dispose();
+                    }
+                    catch (NullReferenceException e)
+                    {
+                        Console.WriteLine("Can't Dispose of nothing - " + e.Message);
+                    }
                 }
                 disposed = true;
             }

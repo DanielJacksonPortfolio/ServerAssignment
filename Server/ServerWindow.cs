@@ -13,12 +13,15 @@ namespace Server
     public partial class ServerWindow : Form
     {
         delegate void UpdateServerLogDelegate(string message);
+        delegate void CloseFormDelegate();
         UpdateServerLogDelegate updateServerLogDelegate;
+        CloseFormDelegate closeFormDelegate;
         Server_Server server;
         public ServerWindow(Server_Server server)
         {
             InitializeComponent();
             updateServerLogDelegate = new UpdateServerLogDelegate(UpdateServerLog);
+            closeFormDelegate = new CloseFormDelegate(CloseForm);
             this.server = server;
             InputBox.Select();
         }
@@ -46,10 +49,29 @@ namespace Server
                 Console.WriteLine(e.Message);
             }
         }
+        public void CloseForm()
+        {
+            try
+            {
+                if (this.InvokeRequired)
+                {
+                    Invoke(closeFormDelegate);
+                }
+                else
+                {
+                    this.Close();
+                }
+            }
+            catch (System.InvalidOperationException e)
+            {
+                Console.WriteLine(e.Message);
+            }
+
+        }
 
         private void Submit_Click(object sender, EventArgs e)
         {
-            server.ProcessServerCommand(Message_Origins.SERVER, InputBox.Text);
+            server.ProcessCommand(Message_Origins.SERVER, InputBox.Text);
             InputBox.Text = "";
         }
 
@@ -57,7 +79,7 @@ namespace Server
         {
             if (e.KeyCode == Keys.Enter)
             {
-                server.ProcessServerCommand(Message_Origins.SERVER, InputBox.Text);
+                server.ProcessCommand(Message_Origins.SERVER, InputBox.Text);
                 InputBox.Text = "";
             }
         }

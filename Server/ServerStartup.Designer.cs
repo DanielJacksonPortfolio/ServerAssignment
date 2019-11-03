@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ServerStartup));
             this.PortLabel = new System.Windows.Forms.Label();
             this.PortInput = new System.Windows.Forms.RichTextBox();
             this.ServerNameLabel = new System.Windows.Forms.Label();
@@ -42,42 +43,38 @@
             // 
             this.PortLabel.AutoSize = true;
             this.PortLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 18F);
-            this.PortLabel.Location = new System.Drawing.Point(8, 86);
-            this.PortLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.PortLabel.Location = new System.Drawing.Point(12, 132);
             this.PortLabel.Name = "PortLabel";
-            this.PortLabel.Size = new System.Drawing.Size(69, 29);
+            this.PortLabel.Size = new System.Drawing.Size(103, 40);
             this.PortLabel.TabIndex = 17;
             this.PortLabel.Text = "Port: ";
             // 
             // PortInput
             // 
             this.PortInput.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F);
-            this.PortInput.Location = new System.Drawing.Point(178, 86);
-            this.PortInput.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.PortInput.Location = new System.Drawing.Point(267, 132);
             this.PortInput.Multiline = false;
             this.PortInput.Name = "PortInput";
-            this.PortInput.Size = new System.Drawing.Size(489, 31);
+            this.PortInput.Size = new System.Drawing.Size(732, 46);
             this.PortInput.TabIndex = 16;
-            this.PortInput.Text = "4440";
+            this.PortInput.Text = "4444";
             // 
             // ServerNameLabel
             // 
             this.ServerNameLabel.AutoSize = true;
             this.ServerNameLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 18F);
-            this.ServerNameLabel.Location = new System.Drawing.Point(7, 123);
-            this.ServerNameLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.ServerNameLabel.Location = new System.Drawing.Point(10, 189);
             this.ServerNameLabel.Name = "ServerNameLabel";
-            this.ServerNameLabel.Size = new System.Drawing.Size(167, 29);
+            this.ServerNameLabel.Size = new System.Drawing.Size(249, 40);
             this.ServerNameLabel.TabIndex = 15;
             this.ServerNameLabel.Text = "Server Name: ";
             // 
             // StartButton
             // 
             this.StartButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F);
-            this.StartButton.Location = new System.Drawing.Point(681, 123);
-            this.StartButton.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.StartButton.Location = new System.Drawing.Point(1022, 189);
             this.StartButton.Name = "StartButton";
-            this.StartButton.Size = new System.Drawing.Size(92, 31);
+            this.StartButton.Size = new System.Drawing.Size(138, 48);
             this.StartButton.TabIndex = 14;
             this.StartButton.Text = "Start";
             this.StartButton.UseVisualStyleBackColor = true;
@@ -87,10 +84,9 @@
             // 
             this.ServerSettingsHeaderLabel.AutoSize = true;
             this.ServerSettingsHeaderLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 18F);
-            this.ServerSettingsHeaderLabel.Location = new System.Drawing.Point(8, 8);
-            this.ServerSettingsHeaderLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.ServerSettingsHeaderLabel.Location = new System.Drawing.Point(12, 12);
             this.ServerSettingsHeaderLabel.Name = "ServerSettingsHeaderLabel";
-            this.ServerSettingsHeaderLabel.Size = new System.Drawing.Size(177, 29);
+            this.ServerSettingsHeaderLabel.Size = new System.Drawing.Size(263, 40);
             this.ServerSettingsHeaderLabel.TabIndex = 12;
             this.ServerSettingsHeaderLabel.Text = "Server Settings";
             // 
@@ -98,40 +94,37 @@
             // 
             this.IPLabel.AutoSize = true;
             this.IPLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 18F);
-            this.IPLabel.Location = new System.Drawing.Point(7, 45);
-            this.IPLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.IPLabel.Location = new System.Drawing.Point(10, 69);
             this.IPLabel.Name = "IPLabel";
-            this.IPLabel.Size = new System.Drawing.Size(142, 29);
+            this.IPLabel.Size = new System.Drawing.Size(212, 40);
             this.IPLabel.TabIndex = 11;
             this.IPLabel.Text = "IP Address: ";
             // 
             // IPInput
             // 
             this.IPInput.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F);
-            this.IPInput.Location = new System.Drawing.Point(178, 45);
-            this.IPInput.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.IPInput.Location = new System.Drawing.Point(267, 69);
             this.IPInput.Multiline = false;
             this.IPInput.Name = "IPInput";
-            this.IPInput.Size = new System.Drawing.Size(489, 31);
+            this.IPInput.Size = new System.Drawing.Size(732, 46);
             this.IPInput.TabIndex = 10;
             this.IPInput.Text = "127.0.0.1";
             // 
             // UsernameInput
             // 
             this.UsernameInput.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F);
-            this.UsernameInput.Location = new System.Drawing.Point(178, 123);
-            this.UsernameInput.Margin = new System.Windows.Forms.Padding(2);
+            this.UsernameInput.Location = new System.Drawing.Point(267, 189);
             this.UsernameInput.Multiline = false;
             this.UsernameInput.Name = "UsernameInput";
-            this.UsernameInput.Size = new System.Drawing.Size(489, 31);
+            this.UsernameInput.Size = new System.Drawing.Size(732, 46);
             this.UsernameInput.TabIndex = 13;
             this.UsernameInput.Text = "General";
             // 
             // ServerStartup
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(785, 163);
+            this.ClientSize = new System.Drawing.Size(1178, 251);
             this.Controls.Add(this.PortLabel);
             this.Controls.Add(this.PortInput);
             this.Controls.Add(this.ServerNameLabel);
@@ -140,7 +133,7 @@
             this.Controls.Add(this.ServerSettingsHeaderLabel);
             this.Controls.Add(this.IPLabel);
             this.Controls.Add(this.IPInput);
-            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "ServerStartup";
             this.Text = "Server Settings";
             this.ResumeLayout(false);

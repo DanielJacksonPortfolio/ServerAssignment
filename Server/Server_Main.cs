@@ -13,6 +13,10 @@ namespace Server
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
+            StartLoop();
+        }
+        public static void StartLoop()
+        {
             Application.Run(new ServerStartup());
         }
 
@@ -23,16 +27,13 @@ namespace Server
             string ip = (string)argsArray.GetValue(0);
             string portString = (string)argsArray.GetValue(1);
             string id = (string)argsArray.GetValue(2);
-            //int port = 4440;
             Int32.TryParse(portString, out int port);
 
             Console.WriteLine("Server Started...");
             Server_Server server = new Server_Server();
-            if (!server.Connect(ip, port, id))
-            {
-                Console.WriteLine("Error Failed to Connect");
-            }
+            server.Connect(ip, port, id);
             server.Dispose();
+            StartLoop();
         }
     }
 }

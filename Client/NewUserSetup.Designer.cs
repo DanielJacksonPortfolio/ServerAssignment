@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(NewUserSetup));
             this.IPInput = new System.Windows.Forms.RichTextBox();
             this.IPLabel = new System.Windows.Forms.Label();
             this.NewUserHeaderLabel = new System.Windows.Forms.Label();
@@ -42,7 +43,7 @@
             // 
             this.IPInput.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F);
             this.IPInput.Location = new System.Drawing.Point(161, 43);
-            this.IPInput.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.IPInput.Margin = new System.Windows.Forms.Padding(2);
             this.IPInput.Multiline = false;
             this.IPInput.Name = "IPInput";
             this.IPInput.Size = new System.Drawing.Size(489, 31);
@@ -86,7 +87,7 @@
             // 
             this.ConnectButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F);
             this.ConnectButton.Location = new System.Drawing.Point(664, 120);
-            this.ConnectButton.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.ConnectButton.Margin = new System.Windows.Forms.Padding(2);
             this.ConnectButton.Name = "ConnectButton";
             this.ConnectButton.Size = new System.Drawing.Size(92, 31);
             this.ConnectButton.TabIndex = 5;
@@ -98,7 +99,7 @@
             // 
             this.UsernameInput.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F);
             this.UsernameInput.Location = new System.Drawing.Point(161, 120);
-            this.UsernameInput.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.UsernameInput.Margin = new System.Windows.Forms.Padding(2);
             this.UsernameInput.Multiline = false;
             this.UsernameInput.Name = "UsernameInput";
             this.UsernameInput.Size = new System.Drawing.Size(489, 31);
@@ -120,7 +121,7 @@
             // 
             this.PortInput.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F);
             this.PortInput.Location = new System.Drawing.Point(161, 83);
-            this.PortInput.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.PortInput.Margin = new System.Windows.Forms.Padding(2);
             this.PortInput.Multiline = false;
             this.PortInput.Name = "PortInput";
             this.PortInput.Size = new System.Drawing.Size(489, 31);
@@ -140,7 +141,8 @@
             this.Controls.Add(this.NewUserHeaderLabel);
             this.Controls.Add(this.IPLabel);
             this.Controls.Add(this.IPInput);
-            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "NewUserSetup";
             this.Text = "Connect To Server";
             this.ResumeLayout(false);
