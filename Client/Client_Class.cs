@@ -31,7 +31,6 @@ namespace Client
             this.chatWindow = chatWindow;
             this.chatWindow.InitializeClient(this);
         }
-
         public bool Connect(string ipAddress, int port, string id)
         {
             try
@@ -43,7 +42,7 @@ namespace Client
                 bwriter = new BinaryWriter(stream);
                 connected = true;
                 readerThread = new Thread(Receive); // Process Server Response
-                //Application.Run(chatWindow);
+                chatWindow.StartConnection();
             }
             catch(SocketException e)
             {

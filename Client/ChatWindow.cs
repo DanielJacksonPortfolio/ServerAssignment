@@ -39,6 +39,12 @@ namespace Client
             initializeClientDelegate = new InitializeClientDelegate(InitializeClient);
             InputBox.Select();
         }
+       
+         public void StartConnection()
+        {
+            client.Run();
+        }
+
 
         public void UpdateServerLog(string message)
         {
@@ -71,7 +77,6 @@ namespace Client
                 else
                 {
                     this.client = client;
-                    this.client.Run();
                 }
             }
             catch (System.InvalidOperationException e)
@@ -143,10 +148,9 @@ namespace Client
 
         private void ConnectButton_Click(object sender, EventArgs e)
         {
-            object args = new object[4] { IPInput.Text, PortInput.Text, UsernameInput.Text,this };
+            object args = new object[4] { IPInput.Text, PortInput.Text, UsernameInput.Text,this.client};
             Thread t = new Thread(new ParameterizedThreadStart(Client_Main.ConnectToServer));
             t.Start(args);
-            this.Close();
         }
     }
 }

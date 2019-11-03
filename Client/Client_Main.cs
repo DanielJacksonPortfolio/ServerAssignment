@@ -16,13 +16,19 @@ namespace Client
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            StartLoop();
+
+
+            ChatWindow chatWindow = new ChatWindow();
+            Client_Client client = new Client_Client(chatWindow);
+            Application.Run(chatWindow);
+            //StartLoop();
         }
 
 
         public static void StartLoop()
         {
-            Application.Run(new ChatWindow());
+
+            Application.Run();
         }
 
         public static void ConnectToServer(object args)
@@ -34,12 +40,9 @@ namespace Client
             string id = (string)argsArray.GetValue(2);
             Int32.TryParse(portString, out int port);
 
+            Client_Client client = (Client_Client)argsArray.GetValue(3);
 
-            ChatWindow chatWindow = (ChatWindow)argsArray.GetValue(3);
-
-            Client_Client client = new Client_Client(chatWindow);
-
-            if(!client.Connect(ip, port, id));
+            if(!client.Connect(ip, port, id))
             {
                 client.Dispose();
                 StartLoop();
