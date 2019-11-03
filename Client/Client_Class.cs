@@ -25,14 +25,26 @@ namespace Client
         bool disposed = false;
         bool connected = false;
 
+        public bool IsConnected()
+        {
+            return this.connected;
+        }
+
         public Client_Client(ChatWindow chatWindow)
         {
             tcpClient = new TcpClient();
             this.chatWindow = chatWindow;
             this.chatWindow.InitializeClient(this);
+            this.chatWindow.UpdateServerLog("Welcome to my chat window. You can connect to a server by inputing your desired IP and Port into the 'Connection Destination' boxes. Choose a username and click connect\n-------------------------------------------------------------------------------------------------------------------------------------------------------------");
         }
-        public bool Connect(string ipAddress, int port, string id)
+        public void Connect(object args)
         {
+            Array argsArray;
+            argsArray = (Array)args;
+            string ipAddress = (string)argsArray.GetValue(0);
+            string portString = (string)argsArray.GetValue(1);
+            string id = (string)argsArray.GetValue(2);
+            Int32.TryParse(portString, out int port);
             try
             {
                 idTemp = id;
@@ -47,9 +59,9 @@ namespace Client
             catch(SocketException e)
             {
                 Console.WriteLine("Exception: Connection error - "+e.Message);
-                return false;
+                chatWindow.UpdateServerLog("Error - Failed to connect: IP - " + ipAddress + ", Port - " + port.ToString());
+                connected = false;
             }
-            return true;
         }
 
         public void Run()
@@ -60,8 +72,10 @@ namespace Client
 
         public void Stop()
         {
-            readerThread.Abort();
-            tcpClient.Close();
+            if(readerThread != null)
+                readerThread.Abort();
+            if(tcpClient != null)
+                tcpClient.Close();
         }
 
         public void ProcessMessage(string message, PacketType packetType)
@@ -192,10 +206,10 @@ namespace Client
                     try
                     {
                         tcpClient.Dispose();
-                        chatWindow.Dispose();
                         breader.Dispose();
                         bwriter.Dispose();
                         stream.Dispose();
+                        chatWindow.Dispose();
                     }
                     catch (NullReferenceException e)
                     {

@@ -236,6 +236,7 @@ namespace Server
         {
             ValidateID(client, receivedMessage);
             Log("Log: Connection Made - " + client.ID + " connected");
+            MessageClient("-------------------------------------------------------------------------------------------------------------------------------------------------------------", client);
             MessageClient("This is " + serverID + " server. For more information visit: https://danieljacksonportfolio.co.uk/ \nWelcome " + client.ID, client);
 
             foreach (Server_Client recClient in clients)

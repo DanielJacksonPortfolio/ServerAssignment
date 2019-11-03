@@ -155,14 +155,16 @@
             this.RenameButton.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(85)))), ((int)(((byte)(85)))), ((int)(((byte)(85)))));
             this.RenameButton.FlatAppearance.BorderSize = 0;
             this.RenameButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.RenameButton.Font = new System.Drawing.Font("Century Gothic", 11F);
             this.RenameButton.ForeColor = System.Drawing.SystemColors.Control;
             this.RenameButton.Location = new System.Drawing.Point(330, 537);
             this.RenameButton.Margin = new System.Windows.Forms.Padding(6, 8, 6, 8);
             this.RenameButton.Name = "RenameButton";
             this.RenameButton.Size = new System.Drawing.Size(130, 50);
             this.RenameButton.TabIndex = 32;
-            this.RenameButton.Text = "Rename";
+            this.RenameButton.Text = "Set Name";
             this.RenameButton.UseVisualStyleBackColor = false;
+            this.RenameButton.Click += new System.EventHandler(this.RenameButton_Click);
             // 
             // label1
             // 
@@ -211,6 +213,7 @@
             this.DisconnectButton.TabIndex = 28;
             this.DisconnectButton.Text = "Disconnect";
             this.DisconnectButton.UseVisualStyleBackColor = false;
+            this.DisconnectButton.Click += new System.EventHandler(this.DisconnectButton_Click);
             // 
             // ConnectButton
             // 
