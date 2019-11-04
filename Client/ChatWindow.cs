@@ -15,8 +15,10 @@ namespace Client
     public partial class ChatWindow : Form
     {
         delegate void UpdateServerLogDelegate(string message);
+        delegate void UpdateConnectionLabelsDelegate(bool connecting);
         delegate void CloseFormDelegate();
         UpdateServerLogDelegate updateServerLogDelegate;
+        UpdateConnectionLabelsDelegate updateConnectionLabelsDelegate;
         CloseFormDelegate closeFormDelegate;
         Client_Client client;
 
@@ -33,6 +35,7 @@ namespace Client
             InitializeComponent();
             ApplyLayoutChanges();
             updateServerLogDelegate = new UpdateServerLogDelegate(UpdateServerLog);
+            updateConnectionLabelsDelegate = new UpdateConnectionLabelsDelegate(UpdateConnectionLabels);
             closeFormDelegate = new CloseFormDelegate(CloseForm);
             InputBox.Select();
         }
@@ -40,6 +43,37 @@ namespace Client
          public void StartConnection()
         {
             client.Run();
+            UpdateConnectionLabels(true);
+        }
+        public void UpdateConnectionLabels(bool connecting)
+        {
+            try
+            {
+                if (ServerLog.InvokeRequired)
+                {
+                    Invoke(updateConnectionLabelsDelegate, connecting);
+                }
+                else
+                {
+                    if (connecting)
+                    {
+                        CurrentIPLabel.Text = IPInput.Text;
+                        CurrentPortLabel.Text = PortInput.Text;
+                    }
+                    else
+                    {
+                        LastIPLabel.Text = CurrentIPLabel.Text;
+                        LastPortLabel.Text = CurrentPortLabel.Text;
+                        CurrentIPLabel.Text = "N/A";
+                        CurrentPortLabel.Text = "N/A";
+                    }
+                }
+            }
+            catch (System.InvalidOperationException e)
+            {
+                Console.WriteLine(e.Message);
+            }
+
         }
 
         public void UpdateServerLog(string message)
@@ -128,14 +162,14 @@ namespace Client
             System.Diagnostics.Process.Start(e.LinkText);
         }
 
-        public bool ValidateIPv4()
+        bool ValidateIPv4(string ip)
         {
-            if (String.IsNullOrWhiteSpace(IPInput.Text))
+            if (String.IsNullOrWhiteSpace(ip))
             {
                 return false;
             }
 
-            string[] splitValues = IPInput.Text.Split('.');
+            string[] splitValues = ip.Split('.');
             if (splitValues.Length != 4)
             {
                 return false;
@@ -146,35 +180,62 @@ namespace Client
             return splitValues.All(r => byte.TryParse(r, out tempForParsing));
         }
 
+        public void ProcessConnect(string ipIn = "NONE", string portIn = "NONE", string usernameIn = "NONE")
+        {
+            if (!client.IsConnected())
+            {
+                bool ipValid = false;
+                bool portValid = false;
+                bool usernameValid = false;
+                if (ipIn == "NONE")
+                {
+                    ipIn = IPInput.Text;
+                }
+                if (ValidateIPv4(ipIn))
+                    ipValid = true;
+                else
+                    UpdateServerLog("Error: Invalid IP - " + ipIn);
+
+
+                if (portIn == "NONE")
+                {
+                    portIn = PortInput.Text;
+                }
+
+                Int32.TryParse(portIn, out int port);
+
+                if (port > 0 && port < 65536)
+                    portValid = true;
+                else
+                    UpdateServerLog("Error: Invalid Port - " + portIn);
+
+
+                if (usernameIn == "NONE")
+                {
+                    usernameIn = UsernameInput.Text;
+                }
+
+                if (usernameIn != "")
+                    usernameValid = true;
+                else
+                    UpdateServerLog("Error: You must have at least 1 character in your username");
+
+                if (ipValid && portValid && usernameValid)
+                {
+                    object args = new object[4] { ipIn, port, usernameIn, this.client };
+                    Thread t = new Thread(new ParameterizedThreadStart(client.Connect));
+                    t.Start(args);
+                }
+            }
+            else
+            {
+                UpdateServerLog("Error: Already connected to a server");
+            }
+        }
+       
         private void ConnectButton_Click(object sender, EventArgs e)
         {
-            bool ipValid = false;
-            bool portValid = false;
-            bool usernameValid = false;
-
-            if (ValidateIPv4())
-                ipValid = true;
-            else
-                UpdateServerLog("Error: Invalid IP - "+IPInput.Text);
-
-            Int32.TryParse(PortInput.Text, out int port);
-
-            if (port > 0 && port < 65536)
-                portValid = true;
-            else
-                UpdateServerLog("Error: Invalid Port - "+ PortInput.Text);
-
-            if (UsernameInput.Text != "")
-                usernameValid = true;
-            else
-                UpdateServerLog("Error: You must have at least 1 character in your username");
-
-            if (ipValid && portValid && usernameValid)
-            {
-                object args = new object[4] { IPInput.Text, PortInput.Text, UsernameInput.Text, this.client };
-                Thread t = new Thread(new ParameterizedThreadStart(client.Connect));
-                t.Start(args);
-            }
+            ProcessConnect();
         }
 
         private void RenameButton_Click(object sender, EventArgs e)
@@ -190,7 +251,14 @@ namespace Client
 
         private void DisconnectButton_Click(object sender, EventArgs e)
         {
-
+            if (client.IsConnected())
+            {
+                client.ProcessMessage("/disconnect",PacketType.CHAT_MESSAGE);
+            }
+            else
+            {
+                UpdateServerLog("Error: You aren't connected to a server");
+            }
         }
     }
 }

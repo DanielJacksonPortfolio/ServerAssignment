@@ -32,7 +32,6 @@ namespace Client
 
         public Client_Client(ChatWindow chatWindow)
         {
-            tcpClient = new TcpClient();
             this.chatWindow = chatWindow;
             this.chatWindow.InitializeClient(this);
             this.chatWindow.UpdateServerLog("Welcome to my chat window. You can connect to a server by inputing your desired IP and Port into the 'Connection Destination' boxes. Choose a username and click connect\n-------------------------------------------------------------------------------------------------------------------------------------------------------------");
@@ -42,18 +41,18 @@ namespace Client
             Array argsArray;
             argsArray = (Array)args;
             string ipAddress = (string)argsArray.GetValue(0);
-            string portString = (string)argsArray.GetValue(1);
+            int port = (int)argsArray.GetValue(1);
             string id = (string)argsArray.GetValue(2);
-            Int32.TryParse(portString, out int port);
             try
             {
                 idTemp = id;
+                tcpClient = new TcpClient();
                 tcpClient.Connect(ipAddress, port);
                 stream = tcpClient.GetStream();
                 breader = new BinaryReader(stream);
                 bwriter = new BinaryWriter(stream);
                 connected = true;
-                readerThread = new Thread(Receive); // Process Server Response
+                readerThread = new Thread(Receive);
                 chatWindow.StartConnection();
             }
             catch(SocketException e)
@@ -72,10 +71,10 @@ namespace Client
 
         public void Stop()
         {
-            if(readerThread != null)
-                readerThread.Abort();
-            if(tcpClient != null)
+            if (tcpClient != null)
                 tcpClient.Close();
+            if (readerThread != null)
+                readerThread.Abort();
         }
 
         public void ProcessMessage(string message, PacketType packetType)
@@ -113,7 +112,49 @@ namespace Client
             }
             else
             {
-                chatWindow.UpdateServerLog("Cannot Send Message - No Connection to server");
+                if(!CheckForConnect(data))
+                {
+                    chatWindow.UpdateServerLog("Cannot Send Message - No Connection to server");
+                }
+            }
+        }
+
+        bool CheckForConnect(Packet data)
+        {
+            if (data.type == PacketType.CHAT_MESSAGE)
+            {
+                ChatMessagePacket data2 = (ChatMessagePacket)data;
+                data2.message = data2.message.ToLower();
+                if (data2.message.StartsWith("/connect"))
+                {
+                    List<string> connectData = new List<string>(data2.message.Split(' '));
+                    string ip = "NONE";
+                    string port = "NONE";
+                    string username = "NONE";
+                    if (connectData.Count > 1)
+                    {
+                        ip = connectData[1];
+                    }
+                    if (connectData.Count > 2)
+                    {
+                        port = connectData[2];
+                    }
+                    if (connectData.Count > 3)
+                    {
+                        username = connectData[3];
+                        username[0].ToString().ToUpper();
+                    }
+                    chatWindow.ProcessConnect(ip,port,username);
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                return false;
             }
         }
         
@@ -158,6 +199,12 @@ namespace Client
                                 ProcessServerResponse(packet.message);
                                 return;
                             }
+                        case PacketType.DISCONNECT:
+                            {
+                                DisconnectPacket packet = (DisconnectPacket)rawPacket;
+                                ProcessServerResponse(packet.message, packet.disconnectType);
+                                return;
+                            }
                     }
                 }
             }
@@ -167,27 +214,23 @@ namespace Client
             }
         }
 
-        void ProcessServerResponse(string serverText)
+        void ProcessServerResponse(string serverText, DisconnectPacket.DisconnectType dType = DisconnectPacket.DisconnectType.INVALID)
         {
-            switch(serverText)
+            switch(dType)
             {
-                case "CODE::KILL":
+                case DisconnectPacket.DisconnectType.CLEAN:
+                case DisconnectPacket.DisconnectType.SERVER_DEAD:
+                case DisconnectPacket.DisconnectType.USER_KILL:
+                case DisconnectPacket.DisconnectType.SERVER_KILL:
                     {
-                        chatWindow.CloseForm();
-                        break;
-                    }
-                case "CODE::SERVER_DEAD":
-                    {
-                        serverText = "Disconnected from Server - Reason: Force Termination";
                         chatWindow.UpdateServerLog(serverText);
                         connected = false;
+                        chatWindow.UpdateConnectionLabels(false);
                         this.Stop();
                         break;
                     }
             }
-
             chatWindow.UpdateServerLog(serverText);
-
         }
 
 

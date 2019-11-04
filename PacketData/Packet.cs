@@ -9,8 +9,7 @@ namespace PacketData
         INVALID,
         EMPTY,
         CHAT_MESSAGE,
-        NICKNAME,
-        USERLIST,
+        DISCONNECT,
         INIT_MESSAGE
     }
 
@@ -19,7 +18,6 @@ namespace PacketData
     {
         public PacketType type = PacketType.INVALID;
     }
-
 
     [Serializable]
     public class ChatMessagePacket : Packet
@@ -40,6 +38,28 @@ namespace PacketData
         public InitMessagePacket(string message)
         {
             this.type = PacketType.INIT_MESSAGE;
+            this.message = message;
+        }
+    }
+    [Serializable]
+    public class DisconnectPacket : Packet
+    {
+        public enum DisconnectType
+        {
+            INVALID,
+            USER_KILL,
+            CLEAN,
+            SERVER_KILL,
+            SERVER_DEAD,
+        }
+
+        public string message = String.Empty;
+        public DisconnectType disconnectType = DisconnectType.INVALID;
+
+        public DisconnectPacket(string message, DisconnectType type)
+        {
+            this.type = PacketType.DISCONNECT;
+            this.disconnectType = type;
             this.message = message;
         }
     }

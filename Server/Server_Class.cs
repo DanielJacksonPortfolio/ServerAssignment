@@ -268,13 +268,16 @@ namespace Server
             }
         }
 
-        public Packet CreatePacket(string message, PacketType packetType)
+        public Packet CreatePacket(string message, PacketType packetType, DisconnectPacket.DisconnectType dType = DisconnectPacket.DisconnectType.INVALID)
         {
             Packet data;
             switch (packetType)
             {
                 case PacketType.INIT_MESSAGE:
                     data = new InitMessagePacket(message);
+                    break;
+                case PacketType.DISCONNECT:
+                    data = new DisconnectPacket(message,dType);
                     break;
                 default:
                     data = new ChatMessagePacket(message);
@@ -300,14 +303,7 @@ namespace Server
                         case PacketType.CHAT_MESSAGE:
                             {
                                 ChatMessagePacket packet = (ChatMessagePacket)rawPacket;
-                                string returnCommand = ProcessClientMessage(packet.message, clients.IndexOf(client));
-                                if (returnCommand == "CODE::KILL" || returnCommand == "CODE::SERVER_DEAD")
-                                {
-                                    Announce(client.ID + " Disconnected");
-                                    client.Close();
-                                    clients.Remove(client);
-                                    return false;
-                                }
+                                ProcessClientMessage(packet.message, clients.IndexOf(client));
                                 break;
                             }
                         case PacketType.INIT_MESSAGE:
@@ -328,6 +324,37 @@ namespace Server
 
         }
 
+
+        void DisconnectClient(DisconnectPacket.DisconnectType dType, string clientID)
+        {
+            DisconnectClient(dType, GetClientFromID(clientID));
+        }
+        void DisconnectClient(DisconnectPacket.DisconnectType dType, Server_Client client, bool all = false)
+        {
+            string dMessage = "Disconnected from Server - Reason: N/A";
+            switch(dType)
+            {
+                case DisconnectPacket.DisconnectType.CLEAN:
+                    dMessage = "Disconnected from Server - Reason: Manual Disconnection";
+                    break;
+                case DisconnectPacket.DisconnectType.SERVER_DEAD:
+                    dMessage = "Disconnected from Server - Reason: Server Died";
+                    break;
+                case DisconnectPacket.DisconnectType.SERVER_KILL:
+                    dMessage = "Disconnected from Server - Reason: Killed by Server";
+                    break;
+                case DisconnectPacket.DisconnectType.USER_KILL:
+                    dMessage = "Disconnected from Server - Reason: Killed by User";
+                    break;
+            }
+
+
+            Send(CreatePacket(dMessage, PacketType.DISCONNECT, dType), client);
+            Announce(client.ID + " Disconnected");
+            client.Close();
+            if(!all)
+                clients.Remove(client);
+        }
 
         void ClientMethod(object clientObj)
         {
@@ -390,10 +417,9 @@ namespace Server
         }
         public void CloseServer()
         {
-            MessageAllClients("CODE::SERVER_DEAD");
-            foreach (Server_Client client in clients)
+            foreach(Server_Client client in clients)
             {
-                client.Close();
+                DisconnectClient(DisconnectPacket.DisconnectType.SERVER_DEAD, client,true);
             }
             clients.Clear();
             server.Stop();
@@ -507,6 +533,7 @@ namespace Server
                                 break;
                             }
                         case "/kill_user":
+                        case "/disconnect_user":
                             {
                                 if (commandData[0] == "")
                                 {
@@ -516,7 +543,7 @@ namespace Server
                                 {
                                     if (ClientExists(commandData[0]))
                                     {
-                                        MessageClient("CODE::KILL", commandData[0]);
+                                        DisconnectClient(DisconnectPacket.DisconnectType.SERVER_KILL, commandData[0]);
                                         Log("Killed User - " + commandData[0]);
                                     }
                                     else
@@ -593,11 +620,11 @@ namespace Server
                 }
                 else if (origin == Message_Origins.CLIENT)
                 {
-                    string Sending_Client = commandData[0];
-                    string Receiving_Client = "NULL CLIENT";
+                    string sendingClient = commandData[0];
+                    string receivingClient = "NULL CLIENT";
                     if (commandData.Count >= 2)
                     {
-                        Receiving_Client = commandData[1];
+                        receivingClient = commandData[1];
                     }
                     switch (commandType.ToLower())
                     {
@@ -606,11 +633,11 @@ namespace Server
                         case "/whisper":
                         case "/dm":
                             {
-                                if (Receiving_Client != "")
+                                if (receivingClient != "")
                                 {
-                                    if (GetClientFromID(Receiving_Client) != null)
+                                    if (GetClientFromID(receivingClient) != null)
                                     {
-                                        if (Sending_Client != Receiving_Client)
+                                        if (sendingClient != receivingClient)
                                         {
                                             if (commandData.Count >= 3)
                                             {
@@ -621,33 +648,33 @@ namespace Server
                                                     msg += " ";
                                                 }
 
-                                                MessageClient("You whispered to " + Receiving_Client + ": " + msg.Substring(0, msg.Length - 1), Sending_Client);
-                                                MessageClient(commandData[0] + " whispered to you: " + msg.Substring(0, msg.Length - 1), Receiving_Client);
+                                                MessageClient("You whispered to " + receivingClient + ": " + msg.Substring(0, msg.Length - 1), sendingClient);
+                                                MessageClient(commandData[0] + " whispered to you: " + msg.Substring(0, msg.Length - 1), receivingClient);
 
-                                                Log("Private Message - " + Sending_Client + " to " + Receiving_Client + ": " + msg.Substring(0, msg.Length - 1));
+                                                Log("Private Message - " + sendingClient + " to " + receivingClient + ": " + msg.Substring(0, msg.Length - 1));
                                             }
                                             else
                                             {
-                                                MessageClient("Private Message Failed - No Message Given", Sending_Client);
-                                                Log("Error: Private Message by " + Sending_Client + " Failed - No Message Given");
+                                                MessageClient("Private Message Failed - No Message Given", sendingClient);
+                                                Log("Error: Private Message by " + sendingClient + " Failed - No Message Given");
                                             }
                                         }
                                         else
                                         {
-                                            MessageClient("Private Message Failed - Cannot Message Yourself", Sending_Client);
-                                            Log("Error: Private Message by " + Sending_Client + " Failed - Cannot Message Yourself");
+                                            MessageClient("Private Message Failed - Cannot Message Yourself", sendingClient);
+                                            Log("Error: Private Message by " + sendingClient + " Failed - Cannot Message Yourself");
                                         }
                                     }
                                     else
                                     {
-                                        MessageClient("Private Message Failed - Invalid User: " + Receiving_Client, Sending_Client);
-                                        Log("Error: Private Message by " + Sending_Client + " Failed - Invalid User: " + Receiving_Client);
+                                        MessageClient("Private Message Failed - Invalid User: " + receivingClient, sendingClient);
+                                        Log("Error: Private Message by " + sendingClient + " Failed - Invalid User: " + receivingClient);
                                     }
                                 }
                                 else
                                 {
-                                    MessageClient("Private Message Failed - No User Given", Sending_Client);
-                                    Log("Error: Private Message by " + Sending_Client + " Failed - No User Given");
+                                    MessageClient("Private Message Failed - No User Given", sendingClient);
+                                    Log("Error: Private Message by " + sendingClient + " Failed - No User Given");
                                 }
                                 break;
                             }
@@ -657,46 +684,46 @@ namespace Server
                         case "/rockpaperscissors":
                         case "/rock_paper_scissors":
                             {
-                                if (Receiving_Client != "")
+                                if (receivingClient != "")
                                 {
-                                    if (GetClientFromID(Receiving_Client) != null)
+                                    if (GetClientFromID(receivingClient) != null)
                                     {
-                                        if (Sending_Client != Receiving_Client)
+                                        if (sendingClient != receivingClient)
                                         {
-                                            if(PlayingRPS(Sending_Client,false) != null)
+                                            if(PlayingRPS(sendingClient,false) != null)
                                             {
-                                                MessageClient("Rock Paper Scissors Failed - You are already playing a game of rock paper scissors", Sending_Client);
-                                                Log("Error: Rock Paper Scissors by " + Sending_Client + " Failed - You are already playing a game of rock paper scissors");
+                                                MessageClient("Rock Paper Scissors Failed - You are already playing a game of rock paper scissors", sendingClient);
+                                                Log("Error: Rock Paper Scissors by " + sendingClient + " Failed - You are already playing a game of rock paper scissors");
                                             }
-                                            else if(PlayingRPS(Receiving_Client,false) != null)
+                                            else if(PlayingRPS(receivingClient,false) != null)
                                             {
-                                                MessageClient("Rock Paper Scissors Failed - "+ Receiving_Client + " is already playing a game of rock paper scissors", Sending_Client);
-                                                Log("Error: Rock Paper Scissors by " + Sending_Client + " Failed - " + Receiving_Client + " is already playing a game of rock paper scissors");
+                                                MessageClient("Rock Paper Scissors Failed - "+ receivingClient + " is already playing a game of rock paper scissors", sendingClient);
+                                                Log("Error: Rock Paper Scissors by " + sendingClient + " Failed - " + receivingClient + " is already playing a game of rock paper scissors");
 
                                             }
                                             else
                                             {
-                                                MessageClient("You have been challenged to a game of Rock-Paper-Scissors by " + Sending_Client, Receiving_Client);
-                                                rpsGames.Add(new RockPaperScissorsGame(this, Sending_Client, Receiving_Client));
-                                                Log("Rock Paper Scissors - " + Sending_Client + " vs " + Receiving_Client);
+                                                MessageClient("You have been challenged to a game of Rock-Paper-Scissors by " + sendingClient, receivingClient);
+                                                rpsGames.Add(new RockPaperScissorsGame(this, sendingClient, receivingClient));
+                                                Log("Rock Paper Scissors - " + sendingClient + " vs " + receivingClient);
                                             }
                                         }
                                         else
                                         {
-                                            MessageClient("Rock Paper Scissors Failed - You Cannot Play Yourself", Sending_Client);
-                                            Log("Error: Rock Paper Scissors by " + Sending_Client + " Failed - Cannot Play Self");
+                                            MessageClient("Rock Paper Scissors Failed - You Cannot Play Yourself", sendingClient);
+                                            Log("Error: Rock Paper Scissors by " + sendingClient + " Failed - Cannot Play Self");
                                         }
                                     }
                                     else
                                     {
-                                        MessageClient("Rock Paper Scissors Failed - Invalid Opponent: " + Receiving_Client, Sending_Client);
-                                        Log("Error: Rock Paper Scissors by " + Sending_Client + " Failed - Invalid Opponent: " + Receiving_Client);
+                                        MessageClient("Rock Paper Scissors Failed - Invalid Opponent: " + receivingClient, sendingClient);
+                                        Log("Error: Rock Paper Scissors by " + sendingClient + " Failed - Invalid Opponent: " + receivingClient);
                                     }
                                 }
                                 else
                                 {
-                                    MessageClient("Rock Paper Scissors Failed - No Opponent Given", Sending_Client);
-                                    Log("Error: Rock Paper Scissors by " + Sending_Client + " Failed - No Opponent Given");
+                                    MessageClient("Rock Paper Scissors Failed - No Opponent Given", sendingClient);
+                                    Log("Error: Rock Paper Scissors by " + sendingClient + " Failed - No Opponent Given");
                                 }
                                 break;
                             }
@@ -704,44 +731,45 @@ namespace Server
                             {
                                 if (commandData[1] != "")
                                 {
-                                    string oldId = GetClientFromID(Sending_Client).ID;
-                                    int index = clients.IndexOf(GetClientFromID(Sending_Client));
+                                    string oldId = GetClientFromID(sendingClient).ID;
+                                    int index = clients.IndexOf(GetClientFromID(sendingClient));
 
-                                    ValidateID(GetClientFromID(Sending_Client), commandData[1]);
+                                    ValidateID(GetClientFromID(sendingClient), commandData[1]);
                                     Announce(oldId + " is now called " + clients[index].ID);
                                 }
                                 else
                                 {
-                                    MessageClient("Error: Rename Failed - New name not given", Sending_Client);
-                                    Log("Error: Rename by " + Sending_Client + " Failed - New name not given");
+                                    MessageClient("Error: Rename Failed - New name not given", sendingClient);
+                                    Log("Error: Rename by " + sendingClient + " Failed - New name not given");
                                 }
 
                                 break;
                             }
                         case "/help":
                             {
-                                MessageClient("\nUser Commands:\n\n/rename[NewID]\n/kill_user[ID] *\n/op[ID] *\n/deop[ID] *\n/kill_server *\n/stop_server *\n/playrps [OpponentID]\n/quit\n/exit\n/kill\n/rename_server [NewID] *\n\n* = Administrator Only\n", Sending_Client);
+                                MessageClient("\nUser Commands:\n\n/rename[NewID]\n/kill_user[ID] *\n/op[ID] *\n/deop[ID] *\n/kill_server *\n/stop_server *\n/playrps [OpponentID]\n/quit\n/exit\n/kill\n/rename_server [NewID] *\n\n* = Administrator Only\n", sendingClient);
                                 break;
                             }
                         case "/kill_user":
+                        case "/disconnect_user":
                             {
-                                if (Receiving_Client != "")
+                                if (receivingClient != "")
                                 {
-                                    if (ClientExists(Receiving_Client))
+                                    if (ClientExists(receivingClient))
                                     {
-                                        MessageClient("CODE::KILL", Receiving_Client);
-                                        GetClientFromID(Receiving_Client).Close();
-                                        clients.Remove(GetClientFromID(Receiving_Client));
+                                        DisconnectClient(DisconnectPacket.DisconnectType.USER_KILL, receivingClient);
+                                        Log("User "+ receivingClient + " Killed by " + sendingClient);
+
                                     }
                                     else
                                     {
-                                        Log("Kill_User by " + Sending_Client + " Failed - Invalid User Selected");
+                                        Log("Kill_User by " + sendingClient + " Failed - Invalid User Selected");
                                     }
                                 }
                                 else
                                 {
-                                    MessageClient("Kill_User Failed - No User Selected", Sending_Client);
-                                    Log("Error:  Kill_User by " + Sending_Client + " Failed - No User Selected");
+                                    MessageClient("Kill_User Failed - No User Selected", sendingClient);
+                                    Log("Error:  Kill_User by " + sendingClient + " Failed - No User Selected");
                                 }
                                 break;
                             }
@@ -749,8 +777,8 @@ namespace Server
                             {
                                 if (commandData[1] == "")
                                 {
-                                    MessageClient("Server Rename Failed - No Data Given", Sending_Client);
-                                    Log("Error:  Server Rename by " + Sending_Client + " Failed - No Data Given");
+                                    MessageClient("Server Rename Failed - No Data Given", sendingClient);
+                                    Log("Error:  Server Rename by " + sendingClient + " Failed - No Data Given");
                                 }
                                 else
                                 {
@@ -761,68 +789,69 @@ namespace Server
                                         newID += " ";
                                     }
                                     this.serverID = newID.Substring(0, newID.Length - 1);
-                                    Announce(Sending_Client + " renamed the server to: " + this.serverID);
+                                    Announce(sendingClient + " renamed the server to: " + this.serverID);
                                 }
                                 break;
                             }
                         case "/op":
                             {
-                                if (Receiving_Client != "")
+                                if (receivingClient != "")
                                 {
-                                    if (ClientExists(Receiving_Client))
+                                    if (ClientExists(receivingClient))
                                     {
-                                        if (!GetClientFromID(Receiving_Client).GetOP())
+                                        if (!GetClientFromID(receivingClient).GetOP())
                                         {
-                                            GetClientFromID(Receiving_Client).SetOP(true);
-                                            MessageClient("You are have been opped", Receiving_Client);
-                                            Log("Log: Opped " + GetClientFromID(Receiving_Client).ID);
+                                            GetClientFromID(receivingClient).SetOP(true);
+                                            MessageClient("You are have been opped", receivingClient);
+                                            Log("Log: Opped " + GetClientFromID(receivingClient).ID);
                                         }
                                     }
                                     else
                                     {
-                                        MessageClient("OP Failed - Invalid User Selected", Sending_Client);
-                                        Log("Error:  OP by " + Sending_Client + " Failed - Invalid User Selected");
+                                        MessageClient("OP Failed - Invalid User Selected", sendingClient);
+                                        Log("Error:  OP by " + sendingClient + " Failed - Invalid User Selected");
                                     }
                                 }
                                 else
                                 {
-                                    MessageClient("OP Failed - No User Selected", Sending_Client);
-                                    Log("Error:  OP by " + Sending_Client + " Failed - No User Selected");
+                                    MessageClient("OP Failed - No User Selected", sendingClient);
+                                    Log("Error:  OP by " + sendingClient + " Failed - No User Selected");
                                 }
                                 break;
                             }
                         case "/deop":
                             {
-                                if (Receiving_Client != "")
+                                if (receivingClient != "")
                                 {
-                                    if (ClientExists(Receiving_Client))
+                                    if (ClientExists(receivingClient))
                                     {
-                                        if (GetClientFromID(Receiving_Client).GetOP())
+                                        if (GetClientFromID(receivingClient).GetOP())
                                         {
-                                            GetClientFromID(Receiving_Client).SetOP(false);
-                                            MessageClient("You have been deoppped", Receiving_Client);
-                                            Log("Log: " + GetClientFromID(Receiving_Client).ID + " Deopped by " + Sending_Client);
+                                            GetClientFromID(receivingClient).SetOP(false);
+                                            MessageClient("You have been deoppped", receivingClient);
+                                            Log("Log: " + GetClientFromID(receivingClient).ID + " Deopped by " + sendingClient);
 
                                         }
                                     }
                                     else
                                     {
-                                        MessageClient("DEOP Failed - Invalid User Selected", Sending_Client);
-                                        Log("Error:  DEOP by " + Sending_Client + " Failed - Invalid User Selected");
+                                        MessageClient("DEOP Failed - Invalid User Selected", sendingClient);
+                                        Log("Error:  DEOP by " + sendingClient + " Failed - Invalid User Selected");
                                     }
                                 }
                                 else
                                 {
-                                    MessageClient("DEOP Failed - No User Selected", Sending_Client);
-                                    Log("Error:  DEOP by " + Sending_Client + " Failed - No User Selected");
+                                    MessageClient("DEOP Failed - No User Selected", sendingClient);
+                                    Log("Error:  DEOP by " + sendingClient + " Failed - No User Selected");
                                 }
                                 break;
                             }
                         case "/quit":
                         case "/kill":
                         case "/exit":
+                        case "/disconnect":
                             {
-                                MessageClient("CODE::KILL", Sending_Client);
+                                DisconnectClient(DisconnectPacket.DisconnectType.CLEAN, sendingClient);
                                 break;
                             }
                         default:
@@ -835,7 +864,7 @@ namespace Server
 
             }
         }
-        string ProcessClientMessage(string command, int clientIndex)
+        void ProcessClientMessage(string command, int clientIndex)
         {
             if (command.StartsWith("/"))
             {
@@ -854,6 +883,7 @@ namespace Server
                 {
                     /// Admin Commands (Pass ID + Data) ///
                     case "/kill_user":
+                    case "/disconnect_user":
                     case "/rename_server":
                     case "/op":
                     case "/deop":
@@ -920,10 +950,11 @@ namespace Server
                     /// Quit Commands ///
                     case "/quit":
                     case "/kill":
+                    case "/disconnect":
                     case "/exit":
                         {
                             ProcessCommand(Message_Origins.CLIENT, commandType + " " + clients[clientIndex].ID);
-                            return "CODE::KILL";
+                            break;
                         }
                     default:
                         {
@@ -960,7 +991,6 @@ namespace Server
                     MessageAllClients(clients[clientIndex].ID + ": " + command);
                 }
             }
-            return "";
         }
         RockPaperScissorsGame PlayingRPS(string clientID, bool checkMove = true)
         {
