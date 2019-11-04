@@ -458,7 +458,7 @@
             this.Margin = new System.Windows.Forms.Padding(6, 8, 6, 8);
             this.Name = "ChatWindow";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "ChatEngine V0.2";
+            this.Text = "ChatEngine V0.2.1";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.ChatWindow_FormClosed);
             this.Load += new System.EventHandler(this.ChatWindow_Load);
             this.ChatInputPanel.ResumeLayout(false);

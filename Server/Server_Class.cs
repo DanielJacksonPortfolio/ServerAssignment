@@ -731,11 +731,18 @@ namespace Server
                             {
                                 if (commandData[1] != "")
                                 {
-                                    string oldId = GetClientFromID(sendingClient).ID;
-                                    int index = clients.IndexOf(GetClientFromID(sendingClient));
-
-                                    ValidateID(GetClientFromID(sendingClient), commandData[1]);
-                                    Announce(oldId + " is now called " + clients[index].ID);
+                                    string oldID = GetClientFromID(sendingClient).ID;
+                                    if (oldID != commandData[1])
+                                    {
+                                        int index = clients.IndexOf(GetClientFromID(sendingClient));
+                                        ValidateID(GetClientFromID(sendingClient), commandData[1]);
+                                        Announce(oldID + " is now called " + clients[index].ID);
+                                    }
+                                    else
+                                    {
+                                        MessageClient("Error: Rename Failed - You are already called "+oldID, sendingClient);
+                                        Log("Error: Rename by " + sendingClient + " Failed - Already called " + oldID);
+                                    }
                                 }
                                 else
                                 {
