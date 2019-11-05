@@ -33,6 +33,9 @@
             this.Submit = new System.Windows.Forms.Button();
             this.ChatInputPanel = new System.Windows.Forms.Panel();
             this.ConnectionControlPanel = new System.Windows.Forms.Panel();
+            this.ChooseColorButton = new System.Windows.Forms.Button();
+            this.ChatColor = new System.Windows.Forms.PictureBox();
+            this.label1 = new System.Windows.Forms.Label();
             this.RenameButton = new System.Windows.Forms.Button();
             this.UsernameLabel = new System.Windows.Forms.Label();
             this.UsernameInput = new System.Windows.Forms.RichTextBox();
@@ -59,9 +62,9 @@
             this.LastIPLabel = new System.Windows.Forms.Label();
             this.panel1 = new System.Windows.Forms.Panel();
             this.ServerLog = new System.Windows.Forms.RichTextBox();
-            this.ColorOfChat = new System.Windows.Forms.ColorDialog();
             this.ChatInputPanel.SuspendLayout();
             this.ConnectionControlPanel.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.ChatColor)).BeginInit();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -108,6 +111,9 @@
             // ConnectionControlPanel
             // 
             this.ConnectionControlPanel.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(65)))), ((int)(((byte)(65)))), ((int)(((byte)(65)))));
+            this.ConnectionControlPanel.Controls.Add(this.ChooseColorButton);
+            this.ConnectionControlPanel.Controls.Add(this.ChatColor);
+            this.ConnectionControlPanel.Controls.Add(this.label1);
             this.ConnectionControlPanel.Controls.Add(this.RenameButton);
             this.ConnectionControlPanel.Controls.Add(this.UsernameLabel);
             this.ConnectionControlPanel.Controls.Add(this.UsernameInput);
@@ -138,6 +144,47 @@
             this.ConnectionControlPanel.Size = new System.Drawing.Size(480, 953);
             this.ConnectionControlPanel.TabIndex = 5;
             // 
+            // ChooseColorButton
+            // 
+            this.ChooseColorButton.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(35)))), ((int)(((byte)(35)))), ((int)(((byte)(35)))));
+            this.ChooseColorButton.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(85)))), ((int)(((byte)(85)))), ((int)(((byte)(85)))));
+            this.ChooseColorButton.FlatAppearance.BorderSize = 0;
+            this.ChooseColorButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.ChooseColorButton.Font = new System.Drawing.Font("Century Gothic", 11F);
+            this.ChooseColorButton.ForeColor = System.Drawing.SystemColors.Control;
+            this.ChooseColorButton.Location = new System.Drawing.Point(240, 633);
+            this.ChooseColorButton.Margin = new System.Windows.Forms.Padding(6, 8, 6, 8);
+            this.ChooseColorButton.Name = "ChooseColorButton";
+            this.ChooseColorButton.Size = new System.Drawing.Size(225, 52);
+            this.ChooseColorButton.TabIndex = 35;
+            this.ChooseColorButton.Text = "Pick Color";
+            this.ChooseColorButton.UseVisualStyleBackColor = false;
+            this.ChooseColorButton.Click += new System.EventHandler(this.ChooseColorButton_Click);
+            // 
+            // ChatColor
+            // 
+            this.ChatColor.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(31)))), ((int)(((byte)(215)))), ((int)(((byte)(76)))));
+            this.ChatColor.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.ChatColor.Location = new System.Drawing.Point(123, 622);
+            this.ChatColor.Name = "ChatColor";
+            this.ChatColor.Size = new System.Drawing.Size(74, 74);
+            this.ChatColor.TabIndex = 34;
+            this.ChatColor.TabStop = false;
+            this.ChatColor.BackColorChanged += new System.EventHandler(this.ChatColor_BackColorChanged);
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.BackColor = System.Drawing.Color.Maroon;
+            this.label1.Font = new System.Drawing.Font("Century Gothic", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label1.ForeColor = System.Drawing.SystemColors.Control;
+            this.label1.Location = new System.Drawing.Point(74, 586);
+            this.label1.Name = "label1";
+            this.label1.Padding = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label1.Size = new System.Drawing.Size(174, 28);
+            this.label1.TabIndex = 33;
+            this.label1.Text = "CHAT COLOR";
+            // 
             // RenameButton
             // 
             this.RenameButton.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(35)))), ((int)(((byte)(35)))), ((int)(((byte)(35)))));
@@ -153,6 +200,7 @@
             this.RenameButton.TabIndex = 32;
             this.RenameButton.Text = "Set Name";
             this.RenameButton.UseVisualStyleBackColor = false;
+            this.RenameButton.Click += new System.EventHandler(this.RenameButton_Click);
             // 
             // UsernameLabel
             // 
@@ -201,6 +249,7 @@
             this.DisconnectButton.TabIndex = 28;
             this.DisconnectButton.Text = "Disconnect";
             this.DisconnectButton.UseVisualStyleBackColor = false;
+            this.DisconnectButton.Click += new System.EventHandler(this.DisconnectButton_Click);
             // 
             // ConnectButton
             // 
@@ -216,6 +265,7 @@
             this.ConnectButton.TabIndex = 3;
             this.ConnectButton.Text = "Connect";
             this.ConnectButton.UseVisualStyleBackColor = false;
+            this.ConnectButton.Click += new System.EventHandler(this.ConnectButton_Click);
             // 
             // LineBreak3
             // 
@@ -435,7 +485,7 @@
             this.panel1.Controls.Add(this.ServerLog);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Left;
             this.panel1.Location = new System.Drawing.Point(0, 0);
-            this.panel1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.panel1.Margin = new System.Windows.Forms.Padding(4);
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(1470, 953);
             this.panel1.TabIndex = 33;
@@ -453,11 +503,6 @@
             this.ServerLog.Size = new System.Drawing.Size(1438, 920);
             this.ServerLog.TabIndex = 2;
             this.ServerLog.Text = "";
-            // 
-            // ColorOfChat
-            // 
-            this.ColorOfChat.Color = System.Drawing.Color.DarkOrange;
-            this.ColorOfChat.FullOpen = true;
             // 
             // ChatWindow
             // 
@@ -479,6 +524,7 @@
             this.ChatInputPanel.ResumeLayout(false);
             this.ConnectionControlPanel.ResumeLayout(false);
             this.ConnectionControlPanel.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.ChatColor)).EndInit();
             this.panel1.ResumeLayout(false);
             this.ResumeLayout(false);
 
@@ -489,10 +535,6 @@
         private System.Windows.Forms.Button Submit;
         private System.Windows.Forms.Panel ChatInputPanel;
         private System.Windows.Forms.Panel ConnectionControlPanel;
-        private System.Windows.Forms.Button RenameButton;
-        private System.Windows.Forms.Label UsernameLabel;
-        private System.Windows.Forms.RichTextBox UsernameInput;
-        private System.Windows.Forms.Panel LineBreak4;
         private System.Windows.Forms.Button DisconnectButton;
         private System.Windows.Forms.Button ConnectButton;
         private System.Windows.Forms.Panel LineBreak3;
@@ -515,7 +557,13 @@
         private System.Windows.Forms.Label LastIPLabel;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.RichTextBox ServerLog;
-        private System.Windows.Forms.ColorDialog ColorOfChat;
+        private System.Windows.Forms.PictureBox ChatColor;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Button RenameButton;
+        private System.Windows.Forms.Label UsernameLabel;
+        private System.Windows.Forms.RichTextBox UsernameInput;
+        private System.Windows.Forms.Panel LineBreak4;
+        private System.Windows.Forms.Button ChooseColorButton;
     }
 }
 

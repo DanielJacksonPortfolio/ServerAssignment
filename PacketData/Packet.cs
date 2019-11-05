@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Drawing;
 using System.Collections.Generic;
 using System.Text;
 
@@ -7,9 +8,9 @@ namespace PacketData
     public enum PacketType
     {
         INVALID,
-        EMPTY,
         CHAT_MESSAGE,
         DISCONNECT,
+        COLOR,
         INIT_MESSAGE
     }
 
@@ -23,22 +24,34 @@ namespace PacketData
     public class ChatMessagePacket : Packet
     {
         public string message = String.Empty;
-
-        public ChatMessagePacket(string message)
+        public Color sendersColor = Color.Black;
+        public ChatMessagePacket(string message, Color color)
         {
             this.type = PacketType.CHAT_MESSAGE;
             this.message = message;
+            this.sendersColor = color;
         }
     }
     [Serializable]
     public class InitMessagePacket : Packet
     {
         public string message = String.Empty;
-
-        public InitMessagePacket(string message)
+        public Color chatColor = Color.Black;
+        public InitMessagePacket(string message, Color chatColor)
         {
             this.type = PacketType.INIT_MESSAGE;
             this.message = message;
+            this.chatColor = chatColor;
+        }
+    }
+    [Serializable]
+    public class ColorPacket : Packet
+    {
+        public Color color = Color.Black;
+        public ColorPacket(Color color)
+        {
+            this.type = PacketType.COLOR;
+            this.color = color;
         }
     }
     [Serializable]
@@ -61,14 +74,6 @@ namespace PacketData
             this.type = PacketType.DISCONNECT;
             this.disconnectType = type;
             this.message = message;
-        }
-    }
-    [Serializable]
-    public class EmptyPacket : Packet
-    {
-        public EmptyPacket()
-        {
-            this.type = PacketType.EMPTY;
         }
     }
 }

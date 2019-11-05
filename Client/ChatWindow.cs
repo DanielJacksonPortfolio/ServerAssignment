@@ -15,12 +15,54 @@ namespace Client
     public partial class ChatWindow : Form
     {
         delegate void UpdateServerLogDelegate(string message, Color color);
+        delegate string GetNameDelegate();
+        delegate Color GetColorDelegate();
         delegate void UpdateConnectionLabelsDelegate(bool connecting);
         delegate void CloseFormDelegate();
         UpdateServerLogDelegate updateServerLogDelegate;
         UpdateConnectionLabelsDelegate updateConnectionLabelsDelegate;
         CloseFormDelegate closeFormDelegate;
+        GetNameDelegate getNameDelegate;
+        GetColorDelegate getColorDelegate;
         Client_Client client;
+        ColorDialog colDialog;
+        public string GetName()
+        {
+            try
+            {
+                if (ServerLog.InvokeRequired)
+                {
+                    Invoke(getNameDelegate);
+                    return this.UsernameInput.Text;
+                }
+                else
+                {
+
+                    return this.UsernameInput.Text;
+                }
+            }
+            catch (System.InvalidOperationException e)
+            {
+                Console.WriteLine(e.Message);
+                return "NO NAME";
+            }
+        }
+        public Color GetColor()
+        {
+            try
+            {
+                if (ServerLog.InvokeRequired)
+                {
+                    Invoke(getColorDelegate);
+                }
+                return this.ChatColor.BackColor;
+            }
+            catch (System.InvalidOperationException e)
+            {
+                Console.WriteLine(e.Message);
+                return Color.CadetBlue;
+            }
+        }
 
 
         void ApplyLayoutChanges()
@@ -28,15 +70,23 @@ namespace Client
             IPInput.SelectionAlignment = HorizontalAlignment.Center;
             PortInput.SelectionAlignment = HorizontalAlignment.Center;
             UsernameInput.SelectionAlignment = HorizontalAlignment.Center;
+            colDialog = new ColorDialog();
+        }
+
+        void SetupDelegates()
+        {
+            updateServerLogDelegate = new UpdateServerLogDelegate(UpdateServerLog);
+            updateConnectionLabelsDelegate = new UpdateConnectionLabelsDelegate(UpdateConnectionLabels);
+            closeFormDelegate = new CloseFormDelegate(CloseForm);
+            getNameDelegate = new GetNameDelegate(GetName);
+            getColorDelegate = new GetColorDelegate(GetColor);
         }
 
         public ChatWindow()
         {
             InitializeComponent();
             ApplyLayoutChanges();
-            updateServerLogDelegate = new UpdateServerLogDelegate(UpdateServerLog);
-            updateConnectionLabelsDelegate = new UpdateConnectionLabelsDelegate(UpdateConnectionLabels);
-            closeFormDelegate = new CloseFormDelegate(CloseForm);
+            SetupDelegates();
             InputBox.Select();
         }
        
@@ -88,8 +138,17 @@ namespace Client
                     ServerLog.SelectionStart = ServerLog.TextLength;
                     ServerLog.SelectionLength = 0;
                     ServerLog.SelectionColor = color;
-                    ServerLog.AppendText(message + "\n");
-                    ServerLog.SelectionColor = ServerLog.ForeColor;
+                    if (message.Contains(':'))
+                    {
+                        ServerLog.AppendText(message.Substring(0,message.IndexOf(':')));
+                        ServerLog.SelectionColor = ServerLog.ForeColor;
+                        ServerLog.AppendText(message.Substring(message.IndexOf(':')) + "\n");
+                    }
+                    else
+                    {
+                        ServerLog.AppendText(message+"\n");
+                        ServerLog.SelectionColor = ServerLog.ForeColor;
+                    }
 
                     ServerLog.SelectionStart = ServerLog.Text.Length;
                     ServerLog.ScrollToCaret();
@@ -107,7 +166,7 @@ namespace Client
         public void InitializeClient(Client_Client client)
         {
             this.client = client;
-            UpdateServerLog("Welcome to my chat window. You can connect to a server by inputing your desired IP and Port into the 'Connection Destination' boxes. Choose a username and click connect\n-------------------------------------------------------------------------------------------------------------------------------------------------------------",Color.Fuchsia);
+            UpdateServerLog("Welcome to my chat window. You can connect to a server by inputing your desired IP and Port into the 'Connection Destination' boxes. Choose a username and click connect",Color.Fuchsia);
         }
 
         public void CloseForm()
@@ -132,7 +191,7 @@ namespace Client
 
         private void Submit_Click(object sender, EventArgs e)
         {
-            client.ProcessMessage(InputBox.Text, PacketType.CHAT_MESSAGE);
+            client.SendChatMessage(InputBox.Text);
             InputBox.Text = "";
         }
 
@@ -140,7 +199,7 @@ namespace Client
         {
             if (e.KeyCode == Keys.Enter)
             {
-                client.ProcessMessage(InputBox.Text, PacketType.CHAT_MESSAGE);
+                client.SendChatMessage(InputBox.Text);
                 InputBox.Text = "";
             }
         }
@@ -161,7 +220,7 @@ namespace Client
         {
             if (client != null)
             {
-                client.ProcessMessage("/kill", PacketType.CHAT_MESSAGE);
+                client.SendChatMessage("/kill");
                 client.Stop();
             }
         }
@@ -252,7 +311,7 @@ namespace Client
             if(client.IsConnected())
             {
                 if (UsernameInput.Text != "")
-                    client.ProcessMessage("/rename " + UsernameInput.Text, PacketType.CHAT_MESSAGE);
+                    client.SendChatMessage("/rename " + UsernameInput.Text);
                 else
                     UpdateServerLog("Error: You must have at least 1 character in your username", Color.DarkRed);
             }
@@ -262,12 +321,28 @@ namespace Client
         {
             if (client.IsConnected())
             {
-                client.ProcessMessage("/disconnect",PacketType.CHAT_MESSAGE);
+                client.SendChatMessage("/disconnect");
             }
             else
             {
                 UpdateServerLog("Error: You aren't connected to a server", Color.DarkRed);
             }
+        }
+
+        private void ChooseColorButton_Click(object sender, EventArgs e)
+        {
+            colDialog.AllowFullOpen = true;
+            colDialog.Color = ChatColor.BackColor;
+
+            if (colDialog.ShowDialog() == DialogResult.OK)
+            {
+                ChatColor.BackColor = colDialog.Color;
+            }
+        }
+
+        private void ChatColor_BackColorChanged(object sender, EventArgs e)
+        {
+            client.SendColor(ChatColor.BackColor);
         }
     }
 }

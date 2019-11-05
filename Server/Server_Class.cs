@@ -28,8 +28,8 @@ namespace Server
             player2ID = p2ID;
             this.server = server;
 
-            server.MessageClient("Choose your Move - Rock, Paper or Scissors: ", player1ID);
-            server.MessageClient("Choose your Move - Rock, Paper or Scissors: ", player2ID);
+            server.MessageClient("Choose your Move - Rock, Paper or Scissors: ", player1ID, server.messageColor);
+            server.MessageClient("Choose your Move - Rock, Paper or Scissors: ", player2ID, server.messageColor);
         }
 
         public bool IsComplete()
@@ -96,8 +96,8 @@ namespace Server
         {
             string gameString = "Server: " + player1ID + " played " + player1Move + ". " + player2ID + " played " + player2Move + ".";
 
-            server.MessageClient(gameString, player1ID);
-            server.MessageClient(gameString, player2ID);
+            server.MessageClient(gameString, player1ID, server.messageColor);
+            server.MessageClient(gameString, player2ID, server.messageColor);
 
             string winString = "";
             bool replay = false;
@@ -119,16 +119,16 @@ namespace Server
                 replay = true;
             }
 
-            server.MessageClient(winString, player1ID);
-            server.MessageClient(winString, player2ID);
+            server.MessageClient(winString, player1ID, server.messageColor);
+            server.MessageClient(winString, player2ID, server.messageColor);
             
             if (replay)
             {
                 player1Move = "";
                 player2Move = "";
                 gameComplete = false;
-                server.MessageClient("Choose your Move - Rock, Paper or Scissors: ", player1ID);
-                server.MessageClient("Choose your Move - Rock, Paper or Scissors: ", player2ID);
+                server.MessageClient("Choose your Move - Rock, Paper or Scissors: ", player1ID, server.messageColor);
+                server.MessageClient("Choose your Move - Rock, Paper or Scissors: ", player2ID, server.messageColor);
             }
         }
     }
@@ -141,19 +141,17 @@ namespace Server
         bool op = false;
         bool disposed = false;
         public string ID { get; set; }
-        public StreamReader reader { get; private set; }
+        public Color color { get; set; }
         public BinaryReader breader { get; private set; }
-        public StreamWriter writer { get; private set; }
         public BinaryWriter bwriter { get; private set; }
 
         public Server_Client(Socket socket)
         {
             this.socket = socket;
             ID = "";
+            color = Color.Black;
             stream = new NetworkStream(this.socket, true);
-            reader = new StreamReader(stream, Encoding.UTF8);
             breader = new BinaryReader(stream);
-            writer = new StreamWriter(stream, Encoding.UTF8);
             bwriter = new BinaryWriter(stream);
         }
 
@@ -198,6 +196,10 @@ namespace Server
         Thread connectorThread;
         ServerWindow serverWindow;
         IPAddress ip;
+        //public Color color = Color.Black;
+        public Color errorColor = Color.DarkRed;
+        public Color announceColor = Color.DarkViolet;
+        public Color messageColor = Color.SaddleBrown;
         int port;
         bool connected = false;
         bool disposed = false;
@@ -243,16 +245,20 @@ namespace Server
         {
             ValidateID(client, receivedMessage);
             Log("Log: Connection Made - " + client.ID + " connected",Color.Black);
-            MessageClient("-------------------------------------------------------------------------------------------------------------------------------------------------------------", client);
-            MessageClient("This is " + serverID + " server. For more information visit: https://danieljacksonportfolio.co.uk/ \nWelcome " + client.ID, client);
+            MessageClient("-------------------------------------------------------------------------------------------------------------------------------------------------------------", client, this.announceColor);
+            MessageClient("This is " + serverID + " server. For more information visit: https://danieljacksonportfolio.co.uk/ \nWelcome " + client.ID, client, this.announceColor);
 
             foreach (Server_Client recClient in clients)
             {
                 if (recClient != client)
                 {
-                    MessageClient(client.ID + " - Connected", recClient);
+                    MessageClient(client.ID + " - Connected", recClient, this.announceColor);
                 }
             }
+        }
+        void SetClientColor(Server_Client client, Color chatColor)
+        {
+            client.color = chatColor;
         }
 
         void Send(Packet data, Server_Client client)
@@ -275,22 +281,17 @@ namespace Server
             }
         }
 
-        public Packet CreatePacket(string message, PacketType packetType, DisconnectPacket.DisconnectType dType = DisconnectPacket.DisconnectType.INVALID)
+        public Packet CreateChatPacket(string message, Color color)
         {
-            Packet data;
-            switch (packetType)
-            {
-                case PacketType.INIT_MESSAGE:
-                    data = new InitMessagePacket(message);
-                    break;
-                case PacketType.DISCONNECT:
-                    data = new DisconnectPacket(message,dType);
-                    break;
-                default:
-                    data = new ChatMessagePacket(message);
-                    break;
-            }
-            return data;
+            return new ChatMessagePacket(message, color);
+        }
+        public Packet CreateInitPacket(string message, Color color)
+        {
+            return new InitMessagePacket(message, color);
+        }
+        public Packet CreateDisconnectPacket(string message, DisconnectPacket.DisconnectType dType)
+        {
+            return new DisconnectPacket(message, dType);
         }
 
         bool Receive(Server_Client client)
@@ -317,6 +318,13 @@ namespace Server
                             {
                                 InitMessagePacket packet = (InitMessagePacket)rawPacket;
                                 SetClientID(client, packet.message);
+                                SetClientColor(client, packet.chatColor);
+                                break;
+                            }
+                        case PacketType.COLOR:
+                            {
+                                ColorPacket packet = (ColorPacket)rawPacket;
+                                SetClientColor(client, packet.color);
                                 break;
                             }
                     }
@@ -356,7 +364,7 @@ namespace Server
             }
 
 
-            Send(CreatePacket(dMessage, PacketType.DISCONNECT, dType), client);
+            Send(CreateDisconnectPacket(dMessage, dType), client);
             Announce(client.ID + " Disconnected");
             client.Close();
             if(!all)
@@ -479,7 +487,7 @@ namespace Server
                                 Log("Error: Private Message Partial Failure - Invalid User: " + rec, Color.Black);
                             }
                         }
-                        MessageClients("Server whispered: " + msg, validatedReceivers);
+                        MessageClients("Server whispered: " + msg, validatedReceivers, this.messageColor);
                         
                     }
                     else
@@ -519,32 +527,32 @@ namespace Server
                                 }
                                 else
                                 {
-                                    MessageClient("Private Message Partial Failure - Cannot Message Yourself", commandData[0]);
+                                    MessageClient("Private Message Partial Failure - Cannot Message Yourself", commandData[0], this.errorColor);
                                     Log("Error: Private Message by " + commandData[0] + " Partial Failure - Cannot Message Yourself", Color.Black);
                                 }
                             }
                             else
                             {
-                                MessageClient("Private Message Failed - Invalid User: " + rec, commandData[0]);
+                                MessageClient("Private Message Failed - Invalid User: " + rec, commandData[0], this.errorColor);
                                 Log("Error: Private Message Partial Failure - Invalid User: " + rec, Color.Black);
                             }
                         }
 
-                        MessageClient("You whispered to " + commandData[1] + ": " + msg.Substring(0, msg.Length - 1), commandData[0]);
-                        MessageClients(commandData[0] + " whispered to you:" + msg, validatedReceivers);
+                        MessageClient("You whispered to " + commandData[1] + ": " + msg.Substring(0, msg.Length - 1), commandData[0], this.messageColor);
+                        MessageClients(commandData[0] + " whispered to you:" + msg, validatedReceivers, GetClientFromID(commandData[0]).color);
                         //MessageClient(commandData[0] + " whispered to you: " + msg.Substring(0, msg.Length - 1), commandData[1]);
 
                         //Log("Private Message - " + commandData[0] + " to " + commandData[1] + ": " + msg.Substring(0, msg.Length - 1));
                     }
                     else
                     {
-                        MessageClient("Private Message Failed - No Message Given", commandData[0]);
+                        MessageClient("Private Message Failed - No Message Given", commandData[0], this.errorColor);
                         Log("Error: Private Message by " + commandData[0] + " Failed - No Message Given", Color.Black);
                     }
                 }
                 else
                 {
-                    MessageClient("Private Message Failed - No User Given", commandData[0]);
+                    MessageClient("Private Message Failed - No User Given", commandData[0], this.errorColor);
                     Log("Error: Private Message by " + commandData[0] + " Failed - No User Given", Color.Black);
                 }
             }
@@ -666,7 +674,7 @@ namespace Server
                                                 if (!GetClientFromID(commandData[0]).GetOP())
                                                 {
                                                     GetClientFromID(commandData[0]).SetOP(true);
-                                                    MessageClient("You are have been opped", commandData[0]);
+                                                    MessageClient("You are have been opped", commandData[0], this.messageColor);
                                                     Log("Log: Opped " + GetClientFromID(commandData[0]).ID, Color.Black);
                                                 }
                                             }
@@ -690,7 +698,7 @@ namespace Server
                                                 if (GetClientFromID(commandData[0]).GetOP())
                                                 {
                                                     GetClientFromID(commandData[0]).SetOP(false);
-                                                    MessageClient("You have been deoppped", commandData[0]);
+                                                    MessageClient("You have been deoppped", commandData[0], this.messageColor);
                                                     Log("Log: Deopped " + GetClientFromID(commandData[0]).ID, Color.Black);
 
                                                 }
@@ -736,37 +744,37 @@ namespace Server
                                                 {
                                                     if (PlayingRPS(sendingClient, false) != null)
                                                     {
-                                                        MessageClient("Rock Paper Scissors Failed - You are already playing a game of rock paper scissors", sendingClient);
+                                                        MessageClient("Rock Paper Scissors Failed - You are already playing a game of rock paper scissors", sendingClient, this.errorColor);
                                                         Log("Error: Rock Paper Scissors by " + sendingClient + " Failed - You are already playing a game of rock paper scissors", Color.Black);
                                                     }
                                                     else if (PlayingRPS(receivingClient, false) != null)
                                                     {
-                                                        MessageClient("Rock Paper Scissors Failed - " + receivingClient + " is already playing a game of rock paper scissors", sendingClient);
+                                                        MessageClient("Rock Paper Scissors Failed - " + receivingClient + " is already playing a game of rock paper scissors", sendingClient, this.errorColor);
                                                         Log("Error: Rock Paper Scissors by " + sendingClient + " Failed - " + receivingClient + " is already playing a game of rock paper scissors", Color.Black);
 
                                                     }
                                                     else
                                                     {
-                                                        MessageClient("You have been challenged to a game of Rock-Paper-Scissors by " + sendingClient, receivingClient);
+                                                        MessageClient("You have been challenged to a game of Rock-Paper-Scissors by " + sendingClient, receivingClient, this.announceColor);
                                                         rpsGames.Add(new RockPaperScissorsGame(this, sendingClient, receivingClient));
                                                         Log("Rock Paper Scissors - " + sendingClient + " vs " + receivingClient, Color.Black);
                                                     }
                                                 }
                                                 else
                                                 {
-                                                    MessageClient("Rock Paper Scissors Failed - You Cannot Play Yourself", sendingClient);
+                                                    MessageClient("Rock Paper Scissors Failed - You Cannot Play Yourself", sendingClient, this.errorColor);
                                                     Log("Error: Rock Paper Scissors by " + sendingClient + " Failed - Cannot Play Self", Color.Black);
                                                 }
                                             }
                                             else
                                             {
-                                                MessageClient("Rock Paper Scissors Failed - Invalid Opponent: " + receivingClient, sendingClient);
+                                                MessageClient("Rock Paper Scissors Failed - Invalid Opponent: " + receivingClient, sendingClient, this.errorColor);
                                                 Log("Error: Rock Paper Scissors by " + sendingClient + " Failed - Invalid Opponent: " + receivingClient, Color.Black);
                                             }
                                         }
                                         else
                                         {
-                                            MessageClient("Rock Paper Scissors Failed - No Opponent Given", sendingClient);
+                                            MessageClient("Rock Paper Scissors Failed - No Opponent Given", sendingClient, this.errorColor);
                                             Log("Error: Rock Paper Scissors by " + sendingClient + " Failed - No Opponent Given", Color.Black);
                                         }
                                         break;
@@ -784,13 +792,13 @@ namespace Server
                                             }
                                             else
                                             {
-                                                MessageClient("Error: Rename Failed - You are already called " + oldID, sendingClient);
+                                                MessageClient("Error: Rename Failed - You are already called " + oldID, sendingClient, this.errorColor);
                                                 Log("Error: Rename by " + sendingClient + " Failed - Already called " + oldID, Color.Black);
                                             }
                                         }
                                         else
                                         {
-                                            MessageClient("Error: Rename Failed - New name not given", sendingClient);
+                                            MessageClient("Error: Rename Failed - New name not given", sendingClient, this.errorColor);
                                             Log("Error: Rename by " + sendingClient + " Failed - New name not given", Color.Black);
                                         }
 
@@ -798,7 +806,7 @@ namespace Server
                                     }
                                 case "/help":
                                     {
-                                        MessageClient("\nUser Commands:\n\n/rename[NewID]\n/kill_user[ID] *\n/op[ID] *\n/deop[ID] *\n/kill_server *\n/stop_server *\n/playrps [OpponentID]\n/quit\n/exit\n/kill\n/rename_server [NewID] *\n\n* = Administrator Only\n", sendingClient);
+                                        MessageClient("\nUser Commands:\n\n/rename[NewID]\n/kill_user[ID] *\n/op[ID] *\n/deop[ID] *\n/kill_server *\n/stop_server *\n/playrps [OpponentID]\n/quit\n/exit\n/kill\n/rename_server [NewID] *\n\n* = Administrator Only\n", sendingClient, this.messageColor);
                                         break;
                                     }
                                 case "/kill_user":
@@ -820,7 +828,7 @@ namespace Server
                                         }
                                         else
                                         {
-                                            MessageClient("Kill_User Failed - No User Selected", sendingClient);
+                                            MessageClient("Kill_User Failed - No User Selected", sendingClient, this.errorColor);
                                             Log("Error:  Kill_User by " + sendingClient + " Failed - No User Selected", Color.Black);
                                         }
                                         break;
@@ -829,7 +837,7 @@ namespace Server
                                     {
                                         if (commandData[1] == "")
                                         {
-                                            MessageClient("Server Rename Failed - No Data Given", sendingClient);
+                                            MessageClient("Server Rename Failed - No Data Given", sendingClient, this.errorColor);
                                             Log("Error:  Server Rename by " + sendingClient + " Failed - No Data Given", Color.Black);
                                         }
                                         else
@@ -854,19 +862,19 @@ namespace Server
                                                 if (!GetClientFromID(receivingClient).GetOP())
                                                 {
                                                     GetClientFromID(receivingClient).SetOP(true);
-                                                    MessageClient("You are have been opped", receivingClient);
+                                                    MessageClient("You are have been opped", receivingClient, this.messageColor);
                                                     Log("Log: Opped " + GetClientFromID(receivingClient).ID, Color.Black);
                                                 }
                                             }
                                             else
                                             {
-                                                MessageClient("OP Failed - Invalid User Selected", sendingClient);
+                                                MessageClient("OP Failed - Invalid User Selected", sendingClient, this.errorColor);
                                                 Log("Error:  OP by " + sendingClient + " Failed - Invalid User Selected", Color.Black);
                                             }
                                         }
                                         else
                                         {
-                                            MessageClient("OP Failed - No User Selected", sendingClient);
+                                            MessageClient("OP Failed - No User Selected", sendingClient, this.errorColor);
                                             Log("Error:  OP by " + sendingClient + " Failed - No User Selected", Color.Black);
                                         }
                                         break;
@@ -880,20 +888,20 @@ namespace Server
                                                 if (GetClientFromID(receivingClient).GetOP())
                                                 {
                                                     GetClientFromID(receivingClient).SetOP(false);
-                                                    MessageClient("You have been deoppped", receivingClient);
+                                                    MessageClient("You have been deoppped", receivingClient, this.messageColor);
                                                     Log("Log: " + GetClientFromID(receivingClient).ID + " Deopped by " + sendingClient, Color.Black);
 
                                                 }
                                             }
                                             else
                                             {
-                                                MessageClient("DEOP Failed - Invalid User Selected", sendingClient);
+                                                MessageClient("DEOP Failed - Invalid User Selected", sendingClient, this.errorColor);
                                                 Log("Error:  DEOP by " + sendingClient + " Failed - Invalid User Selected", Color.Black);
                                             }
                                         }
                                         else
                                         {
-                                            MessageClient("DEOP Failed - No User Selected", sendingClient);
+                                            MessageClient("DEOP Failed - No User Selected", sendingClient, this.errorColor);
                                             Log("Error:  DEOP by " + sendingClient + " Failed - No User Selected", Color.Black);
                                         }
                                         break;
@@ -949,12 +957,12 @@ namespace Server
                                 }
                                 else
                                 {
-                                    MessageClient("Error: Invalid Command Parameters: " + command, clientIndex);
+                                    MessageClient("Error: Invalid Command Parameters: " + command, clientIndex, this.errorColor);
                                 }
                             }
                             else
                             {
-                                MessageClient("Error: You must be an op to use: " + command, clientIndex);
+                                MessageClient("Error: You must be an op to use: " + command, clientIndex, this.errorColor);
                             }
                             break;
                         }
@@ -968,7 +976,7 @@ namespace Server
                             }
                             else
                             {
-                                MessageClient("Error: You must be an op to use: " + command, clientIndex);
+                                MessageClient("Error: You must be an op to use: " + command, clientIndex, this.errorColor);
                             }
                             break;
                         }
@@ -990,7 +998,7 @@ namespace Server
                             }
                             else
                             {
-                                MessageClient("Error: Invalid Command Parameters: " + command, clientIndex);
+                                MessageClient("Error: Invalid Command Parameters: " + command, clientIndex, this.errorColor);
                             }
                             break;
                         }
@@ -1011,7 +1019,7 @@ namespace Server
                         }
                     default:
                         {
-                            MessageClient("Error - No Such Command: " + command, clientIndex);
+                            MessageClient("Error - No Such Command: " + command, clientIndex, this.errorColor);
                             break;
                         }
                 }
@@ -1023,7 +1031,7 @@ namespace Server
                 {
                     if (game.MakeMove(clients[clientIndex].ID, command))
                     {
-                        MessageClient("You played: " + command, clientIndex);
+                        MessageClient("You played: " + command, clientIndex, this.messageColor);
                         if (game.IsComplete())
                         { 
                             game.FinishGame();
@@ -1035,13 +1043,13 @@ namespace Server
                     }
                     else
                     {
-                        MessageClient("Invalid Move: " + command, clientIndex);
-                        MessageClient("Choose your Move - Rock, Paper or Scissors: ", clientIndex);
+                        MessageClient("Invalid Move: " + command, clientIndex, this.errorColor);
+                        MessageClient("Choose your Move - Rock, Paper or Scissors: ", clientIndex, this.messageColor);
                     }
                 }
                 else
                 {
-                    MessageAllClients(clients[clientIndex].ID + ": " + command);
+                    MessageAllClients(clients[clientIndex].ID + ": " + command, clients[clientIndex].color);
                 }
             }
         }
@@ -1081,7 +1089,7 @@ namespace Server
             if (!text.StartsWith("\n"))
             {
                 Log("Announcement: " + text, Color.Black);
-                MessageAllClients("Server Announcement: " + text);
+                MessageAllClients("Server Announcement: " + text,this.announceColor);
             }
         }
         bool ClientExists(string clientID)
@@ -1095,53 +1103,54 @@ namespace Server
             }
             return false;
         }
-        public void MessageClient(string message, int clientIndex)
+        public void MessageClient(string message, int clientIndex, Color senderColor)
         {
             if (clientIndex >= 0 && clientIndex < clients.Count)
             {
-                MessageClient(message,clients[clientIndex]);
+                MessageClient(message,clients[clientIndex], senderColor);
             }
             else
             {
                 Log("Message Sending Failed - Invalid Index - Message: " + message, Color.Black);
             }
         }
-        void MessageClient(string message, Server_Client client)
+        void MessageClient(string message, Server_Client client, Color senderColor)
         {
-            Send(CreatePacket(message, PacketType.CHAT_MESSAGE), client);
+            //Send(CreatePacket(message, PacketType.CHAT_MESSAGE), client);
+            Send(CreateChatPacket(message, senderColor), client);
         }
-        public void MessageClient(string message, string clientID)
+        public void MessageClient(string message, string clientID, Color senderColor)
         {
             if (ClientExists(clientID))
             {
-                MessageClient(message, GetClientFromID(clientID));
+                MessageClient(message, GetClientFromID(clientID), senderColor);
             }
             else
             {
                 Log("Message Sending Failed - Invalid ID - Message: " + message, Color.Black);
             }
         }
-        void MessageAllClients(string message)
+        void MessageAllClients(string message, Color senderColor)
         {
-            MessageClients(message, clients);
+            MessageClients(message, clients, senderColor);
         }
-        void MessageClients(string message,List<Server_Client> inClients)
+        void MessageClients(string message,List<Server_Client> inClients, Color senderColor)
         {
             foreach (Server_Client recClient in clients)
             {
                 if(inClients.Contains(recClient))
                 {
-                    MessageClient(message, recClient);
+                    MessageClient(message, recClient, senderColor);
                 }
             }
         }
-        void MessageClients(string message,List<string> inClientIDs)
+        void MessageClients(string message,List<string> inClientIDs, Color senderColor)
         {
             foreach (Server_Client recClient in clients)
             {
                 if(inClientIDs.Contains(recClient.ID))
                 {
-                    MessageClient(message, recClient);
+                    MessageClient(message, recClient, senderColor);
                 }
             }
         }

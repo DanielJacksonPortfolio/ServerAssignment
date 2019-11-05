@@ -66,7 +66,8 @@ namespace Client
         public void Run()
         {
             readerThread.Start();
-            ProcessMessage(idTemp,PacketType.INIT_MESSAGE);
+            //ProcessMessage(idTemp,PacketType.INIT_MESSAGE);
+            SendInitMessage(idTemp, chatWindow.GetColor());
         }
 
         public void Stop()
@@ -77,16 +78,20 @@ namespace Client
                 readerThread.Abort();
         }
 
-        public void ProcessMessage(string message, PacketType packetType)
+        public void SendChatMessage(string message)
         {
             if (message.Length != 0 && !message.StartsWith("\n"))
             {
-                Send(CreatePacket(message, packetType));
+                Send(CreateChatPacket(message, Color.Black));
             }
-            else
-            {
-                Send(new EmptyPacket());
-            }
+        }
+        public void SendInitMessage(string message, Color color)
+        {
+            Send(CreateInitPacket(message,color));
+        }
+        public void SendColor(Color color)
+        {
+            Send(CreateColorPacket(color));
         }
 
         public void Send(Packet data)
@@ -158,19 +163,17 @@ namespace Client
             }
         }
         
-        public Packet CreatePacket(string message, PacketType packetType)
+        public Packet CreateChatPacket(string message, Color color)
         {
-            Packet data;
-            switch (packetType)
-            {
-                case PacketType.INIT_MESSAGE:
-                    data = new InitMessagePacket(message);
-                    break;
-                default:
-                    data = new ChatMessagePacket(message);
-                    break;
-            }
-            return data;
+            return new ChatMessagePacket(message, Color.Black);
+        }
+        public Packet CreateInitPacket(string message, Color color)
+        {
+            return new InitMessagePacket(message, color);
+        }
+        public Packet CreateColorPacket(Color color)
+        {
+            return new ColorPacket(color);
         }
 
         public void Receive()
@@ -190,19 +193,13 @@ namespace Client
                         case PacketType.CHAT_MESSAGE:
                             {
                                 ChatMessagePacket packet = (ChatMessagePacket)rawPacket;
-                                ProcessServerResponse(packet.message);
+                                ProcessServerResponse(packet.message, packet.sendersColor);
                                 break;
-                            }
-                        case PacketType.INIT_MESSAGE:
-                            {
-                                InitMessagePacket packet = (InitMessagePacket)rawPacket;
-                                ProcessServerResponse(packet.message);
-                                return;
                             }
                         case PacketType.DISCONNECT:
                             {
                                 DisconnectPacket packet = (DisconnectPacket)rawPacket;
-                                ProcessServerResponse(packet.message, packet.disconnectType);
+                                ProcessServerResponse(packet.message, Color.Black, packet.disconnectType);
                                 return;
                             }
                     }
@@ -214,7 +211,7 @@ namespace Client
             }
         }
 
-        void ProcessServerResponse(string serverText, DisconnectPacket.DisconnectType dType = DisconnectPacket.DisconnectType.INVALID)
+        void ProcessServerResponse(string serverText,Color color, DisconnectPacket.DisconnectType dType = DisconnectPacket.DisconnectType.INVALID)
         {
             switch(dType)
             {
@@ -230,7 +227,7 @@ namespace Client
                         break;
                     }
             }
-            chatWindow.UpdateServerLog(serverText, Color.Black);
+            chatWindow.UpdateServerLog(serverText, color);
         }
 
 
