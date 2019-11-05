@@ -14,7 +14,7 @@ namespace Client
 {
     public partial class ChatWindow : Form
     {
-        delegate void UpdateServerLogDelegate(string message);
+        delegate void UpdateServerLogDelegate(string message, Color color);
         delegate void UpdateConnectionLabelsDelegate(bool connecting);
         delegate void CloseFormDelegate();
         UpdateServerLogDelegate updateServerLogDelegate;
@@ -40,7 +40,7 @@ namespace Client
             InputBox.Select();
         }
        
-         public void StartConnection()
+        public void StartConnection()
         {
             client.Run();
             UpdateConnectionLabels(true);
@@ -75,18 +75,22 @@ namespace Client
             }
 
         }
-
-        public void UpdateServerLog(string message)
+        public void UpdateServerLog(string message, Color color )
         {
             try
             {
                 if (ServerLog.InvokeRequired)
                 {
-                    Invoke(updateServerLogDelegate, message);
+                    Invoke(updateServerLogDelegate, message, color);
                 }
                 else
                 {
-                    ServerLog.Text += message += "\n";
+                    ServerLog.SelectionStart = ServerLog.TextLength;
+                    ServerLog.SelectionLength = 0;
+                    ServerLog.SelectionColor = color;
+                    ServerLog.AppendText(message + "\n");
+                    ServerLog.SelectionColor = ServerLog.ForeColor;
+
                     ServerLog.SelectionStart = ServerLog.Text.Length;
                     ServerLog.ScrollToCaret();
                 }
@@ -95,10 +99,15 @@ namespace Client
             {
                 Console.WriteLine(e.Message);
             }
+            catch (InvalidAsynchronousStateException e)
+            {
+                Console.WriteLine(e.Message);
+            }
         }
         public void InitializeClient(Client_Client client)
         {
             this.client = client;
+            UpdateServerLog("Welcome to my chat window. You can connect to a server by inputing your desired IP and Port into the 'Connection Destination' boxes. Choose a username and click connect\n-------------------------------------------------------------------------------------------------------------------------------------------------------------",Color.Fuchsia);
         }
 
         public void CloseForm()
@@ -194,7 +203,7 @@ namespace Client
                 if (ValidateIPv4(ipIn))
                     ipValid = true;
                 else
-                    UpdateServerLog("Error: Invalid IP - " + ipIn);
+                    UpdateServerLog("Error: Invalid IP - " + ipIn, Color.DarkRed);
 
 
                 if (portIn == "NONE")
@@ -207,7 +216,7 @@ namespace Client
                 if (port > 0 && port < 65536)
                     portValid = true;
                 else
-                    UpdateServerLog("Error: Invalid Port - " + portIn);
+                    UpdateServerLog("Error: Invalid Port - " + portIn, Color.DarkRed);
 
 
                 if (usernameIn == "NONE")
@@ -218,7 +227,7 @@ namespace Client
                 if (usernameIn != "")
                     usernameValid = true;
                 else
-                    UpdateServerLog("Error: You must have at least 1 character in your username");
+                    UpdateServerLog("Error: You must have at least 1 character in your username", Color.DarkRed);
 
                 if (ipValid && portValid && usernameValid)
                 {
@@ -229,7 +238,7 @@ namespace Client
             }
             else
             {
-                UpdateServerLog("Error: Already connected to a server");
+                UpdateServerLog("Error: Already connected to a server", Color.DarkRed);
             }
         }
        
@@ -245,7 +254,7 @@ namespace Client
                 if (UsernameInput.Text != "")
                     client.ProcessMessage("/rename " + UsernameInput.Text, PacketType.CHAT_MESSAGE);
                 else
-                    UpdateServerLog("Error: You must have at least 1 character in your username");
+                    UpdateServerLog("Error: You must have at least 1 character in your username", Color.DarkRed);
             }
         }
 
@@ -257,7 +266,7 @@ namespace Client
             }
             else
             {
-                UpdateServerLog("Error: You aren't connected to a server");
+                UpdateServerLog("Error: You aren't connected to a server", Color.DarkRed);
             }
         }
     }

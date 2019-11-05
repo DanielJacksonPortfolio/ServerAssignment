@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Drawing;
 using System.Threading;
 using System.Net.Sockets;
 using System.Net;
@@ -34,7 +35,6 @@ namespace Client
         {
             this.chatWindow = chatWindow;
             this.chatWindow.InitializeClient(this);
-            this.chatWindow.UpdateServerLog("Welcome to my chat window. You can connect to a server by inputing your desired IP and Port into the 'Connection Destination' boxes. Choose a username and click connect\n-------------------------------------------------------------------------------------------------------------------------------------------------------------");
         }
         public void Connect(object args)
         {
@@ -58,7 +58,7 @@ namespace Client
             catch(SocketException e)
             {
                 Console.WriteLine("Exception: Connection error - "+e.Message);
-                chatWindow.UpdateServerLog("Error - Failed to connect: IP - " + ipAddress + ", Port - " + port.ToString());
+                chatWindow.UpdateServerLog("Error - Failed to connect: IP - " + ipAddress + ", Port - " + port.ToString(), Color.DarkRed);
                 connected = false;
             }
         }
@@ -95,13 +95,11 @@ namespace Client
             {
                 try
                 {
-                    if (memoryStream != null) memoryStream.Dispose();
-                    memoryStream = new MemoryStream();
+                    memoryStream.SetLength(0);
                     binaryFormatter.Serialize(memoryStream, data);
                     memoryStream.Flush();
                     byte[] buffer = memoryStream.GetBuffer();
-                    if (memoryStream != null) memoryStream.Dispose();
-                    memoryStream = new MemoryStream();
+                    memoryStream.SetLength(0);
 
                     bwriter.Write(buffer.Length);
                     bwriter.Write(buffer);
@@ -116,7 +114,7 @@ namespace Client
             {
                 if(!CheckForConnect(data))
                 {
-                    chatWindow.UpdateServerLog("Cannot Send Message - No Connection to server");
+                    chatWindow.UpdateServerLog("Cannot Send Message - No Connection to server", Color.Red);
                 }
             }
         }
@@ -186,8 +184,7 @@ namespace Client
                     memoryStream.Write(buffer, 0, noOfIncomingBytes);
                     memoryStream.Position = 0;
                     Packet rawPacket = binaryFormatter.Deserialize(memoryStream) as Packet;
-                    if (memoryStream != null) memoryStream.Dispose();
-                    memoryStream = new MemoryStream();
+                    memoryStream.SetLength(0);
                     switch (rawPacket.type)
                     {
                         case PacketType.CHAT_MESSAGE:
@@ -226,14 +223,14 @@ namespace Client
                 case DisconnectPacket.DisconnectType.USER_KILL:
                 case DisconnectPacket.DisconnectType.SERVER_KILL:
                     {
-                        chatWindow.UpdateServerLog(serverText);
+                        chatWindow.UpdateServerLog(serverText, Color.Yellow);
                         connected = false;
                         chatWindow.UpdateConnectionLabels(false);
                         this.Stop();
                         break;
                     }
             }
-            chatWindow.UpdateServerLog(serverText);
+            chatWindow.UpdateServerLog(serverText, Color.Black);
         }
 
 

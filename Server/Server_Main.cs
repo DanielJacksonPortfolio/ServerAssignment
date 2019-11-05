@@ -13,27 +13,11 @@ namespace Server
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            StartLoop();
-        }
-        public static void StartLoop()
-        {
-            Application.Run(new ServerStartup());
-        }
 
-        public static void StartServer(object args)
-        {
-            Array argsArray;
-            argsArray = (Array)args;
-            string ip = (string)argsArray.GetValue(0);
-            string portString = (string)argsArray.GetValue(1);
-            string id = (string)argsArray.GetValue(2);
-            Int32.TryParse(portString, out int port);
-
-            Console.WriteLine("Server Started...");
-            Server_Server server = new Server_Server();
-            server.Connect(ip, port, id);
+            ServerWindow serverWindow = new ServerWindow();
+            Server_Server server = new Server_Server(serverWindow);
+            Application.Run(serverWindow);
             server.Dispose();
-            StartLoop();
         }
     }
 }
