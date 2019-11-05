@@ -95,10 +95,12 @@ namespace Client
             {
                 try
                 {
+                    if (memoryStream != null) memoryStream.Dispose();
                     memoryStream = new MemoryStream();
                     binaryFormatter.Serialize(memoryStream, data);
                     memoryStream.Flush();
                     byte[] buffer = memoryStream.GetBuffer();
+                    if (memoryStream != null) memoryStream.Dispose();
                     memoryStream = new MemoryStream();
 
                     bwriter.Write(buffer.Length);
@@ -184,6 +186,7 @@ namespace Client
                     memoryStream.Write(buffer, 0, noOfIncomingBytes);
                     memoryStream.Position = 0;
                     Packet rawPacket = binaryFormatter.Deserialize(memoryStream) as Packet;
+                    if (memoryStream != null) memoryStream.Dispose();
                     memoryStream = new MemoryStream();
                     switch (rawPacket.type)
                     {

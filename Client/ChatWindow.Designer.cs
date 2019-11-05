@@ -68,11 +68,11 @@
             this.ServerLog.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.ServerLog.Font = new System.Drawing.Font("Century Gothic", 11F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.ServerLog.ForeColor = System.Drawing.SystemColors.WindowText;
-            this.ServerLog.Location = new System.Drawing.Point(10, 10);
-            this.ServerLog.Margin = new System.Windows.Forms.Padding(6, 8, 6, 8);
+            this.ServerLog.Location = new System.Drawing.Point(7, 7);
+            this.ServerLog.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.ServerLog.Name = "ServerLog";
             this.ServerLog.ReadOnly = true;
-            this.ServerLog.Size = new System.Drawing.Size(1420, 930);
+            this.ServerLog.Size = new System.Drawing.Size(948, 621);
             this.ServerLog.TabIndex = 1;
             this.ServerLog.Text = "";
             this.ServerLog.LinkClicked += new System.Windows.Forms.LinkClickedEventHandler(this.ServerLog_LinkClicked);
@@ -81,10 +81,10 @@
             // 
             this.InputBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.InputBox.Font = new System.Drawing.Font("Century Gothic", 11F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.InputBox.Location = new System.Drawing.Point(10, 10);
-            this.InputBox.Margin = new System.Windows.Forms.Padding(6, 8, 6, 8);
+            this.InputBox.Location = new System.Drawing.Point(7, 7);
+            this.InputBox.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.InputBox.Name = "InputBox";
-            this.InputBox.Size = new System.Drawing.Size(1630, 110);
+            this.InputBox.Size = new System.Drawing.Size(1088, 73);
             this.InputBox.TabIndex = 2;
             this.InputBox.Text = "";
             this.InputBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.InputBox_KeyDown);
@@ -97,10 +97,10 @@
             this.Submit.FlatAppearance.BorderSize = 0;
             this.Submit.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.Submit.ForeColor = System.Drawing.SystemColors.Control;
-            this.Submit.Location = new System.Drawing.Point(1650, 10);
-            this.Submit.Margin = new System.Windows.Forms.Padding(6, 8, 6, 8);
+            this.Submit.Location = new System.Drawing.Point(1100, 7);
+            this.Submit.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.Submit.Name = "Submit";
-            this.Submit.Size = new System.Drawing.Size(258, 110);
+            this.Submit.Size = new System.Drawing.Size(172, 73);
             this.Submit.TabIndex = 0;
             this.Submit.Text = "Submit";
             this.Submit.UseVisualStyleBackColor = false;
@@ -111,9 +111,10 @@
             this.ChatInputPanel.Controls.Add(this.InputBox);
             this.ChatInputPanel.Controls.Add(this.Submit);
             this.ChatInputPanel.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.ChatInputPanel.Location = new System.Drawing.Point(0, 950);
+            this.ChatInputPanel.Location = new System.Drawing.Point(0, 634);
+            this.ChatInputPanel.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.ChatInputPanel.Name = "ChatInputPanel";
-            this.ChatInputPanel.Size = new System.Drawing.Size(1920, 130);
+            this.ChatInputPanel.Size = new System.Drawing.Size(1280, 87);
             this.ChatInputPanel.TabIndex = 3;
             // 
             // ConnectionControlPanel
@@ -144,9 +145,10 @@
             this.ConnectionControlPanel.Controls.Add(this.LastPortLabel);
             this.ConnectionControlPanel.Controls.Add(this.LastIPLabel);
             this.ConnectionControlPanel.Dock = System.Windows.Forms.DockStyle.Right;
-            this.ConnectionControlPanel.Location = new System.Drawing.Point(1440, 0);
+            this.ConnectionControlPanel.Location = new System.Drawing.Point(960, 0);
+            this.ConnectionControlPanel.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.ConnectionControlPanel.Name = "ConnectionControlPanel";
-            this.ConnectionControlPanel.Size = new System.Drawing.Size(480, 950);
+            this.ConnectionControlPanel.Size = new System.Drawing.Size(320, 634);
             this.ConnectionControlPanel.TabIndex = 4;
             // 
             // RenameButton
@@ -157,10 +159,10 @@
             this.RenameButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.RenameButton.Font = new System.Drawing.Font("Century Gothic", 11F);
             this.RenameButton.ForeColor = System.Drawing.SystemColors.Control;
-            this.RenameButton.Location = new System.Drawing.Point(330, 537);
-            this.RenameButton.Margin = new System.Windows.Forms.Padding(6, 8, 6, 8);
+            this.RenameButton.Location = new System.Drawing.Point(220, 358);
+            this.RenameButton.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.RenameButton.Name = "RenameButton";
-            this.RenameButton.Size = new System.Drawing.Size(130, 50);
+            this.RenameButton.Size = new System.Drawing.Size(87, 33);
             this.RenameButton.TabIndex = 32;
             this.RenameButton.Text = "Set Name";
             this.RenameButton.UseVisualStyleBackColor = false;
@@ -172,10 +174,11 @@
             this.UsernameLabel.BackColor = System.Drawing.Color.Maroon;
             this.UsernameLabel.Font = new System.Drawing.Font("Century Gothic", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.UsernameLabel.ForeColor = System.Drawing.SystemColors.Control;
-            this.UsernameLabel.Location = new System.Drawing.Point(98, 499);
+            this.UsernameLabel.Location = new System.Drawing.Point(65, 333);
+            this.UsernameLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.UsernameLabel.Name = "UsernameLabel";
-            this.UsernameLabel.Padding = new System.Windows.Forms.Padding(5, 0, 5, 0);
-            this.UsernameLabel.Size = new System.Drawing.Size(145, 28);
+            this.UsernameLabel.Padding = new System.Windows.Forms.Padding(3, 0, 3, 0);
+            this.UsernameLabel.Size = new System.Drawing.Size(96, 19);
             this.UsernameLabel.TabIndex = 31;
             this.UsernameLabel.Text = "USERNAME";
             // 
@@ -185,18 +188,20 @@
             this.UsernameInput.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.UsernameInput.Font = new System.Drawing.Font("Century Gothic", 20F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.UsernameInput.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(95)))), ((int)(((byte)(60)))));
-            this.UsernameInput.Location = new System.Drawing.Point(20, 537);
+            this.UsernameInput.Location = new System.Drawing.Point(13, 358);
+            this.UsernameInput.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.UsernameInput.Name = "UsernameInput";
-            this.UsernameInput.Size = new System.Drawing.Size(300, 50);
+            this.UsernameInput.Size = new System.Drawing.Size(200, 33);
             this.UsernameInput.TabIndex = 30;
             this.UsernameInput.Text = "Danny";
             // 
             // LineBreak4
             // 
             this.LineBreak4.BackColor = System.Drawing.Color.White;
-            this.LineBreak4.Location = new System.Drawing.Point(0, 602);
+            this.LineBreak4.Location = new System.Drawing.Point(0, 401);
+            this.LineBreak4.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.LineBreak4.Name = "LineBreak4";
-            this.LineBreak4.Size = new System.Drawing.Size(480, 2);
+            this.LineBreak4.Size = new System.Drawing.Size(320, 1);
             this.LineBreak4.TabIndex = 29;
             // 
             // DisconnectButton
@@ -206,10 +211,10 @@
             this.DisconnectButton.FlatAppearance.BorderSize = 0;
             this.DisconnectButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.DisconnectButton.ForeColor = System.Drawing.SystemColors.Control;
-            this.DisconnectButton.Location = new System.Drawing.Point(20, 679);
-            this.DisconnectButton.Margin = new System.Windows.Forms.Padding(6, 8, 6, 8);
+            this.DisconnectButton.Location = new System.Drawing.Point(13, 453);
+            this.DisconnectButton.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.DisconnectButton.Name = "DisconnectButton";
-            this.DisconnectButton.Size = new System.Drawing.Size(440, 50);
+            this.DisconnectButton.Size = new System.Drawing.Size(293, 33);
             this.DisconnectButton.TabIndex = 28;
             this.DisconnectButton.Text = "Disconnect";
             this.DisconnectButton.UseVisualStyleBackColor = false;
@@ -222,10 +227,10 @@
             this.ConnectButton.FlatAppearance.BorderSize = 0;
             this.ConnectButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.ConnectButton.ForeColor = System.Drawing.SystemColors.Control;
-            this.ConnectButton.Location = new System.Drawing.Point(20, 619);
-            this.ConnectButton.Margin = new System.Windows.Forms.Padding(6, 8, 6, 8);
+            this.ConnectButton.Location = new System.Drawing.Point(13, 413);
+            this.ConnectButton.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.ConnectButton.Name = "ConnectButton";
-            this.ConnectButton.Size = new System.Drawing.Size(440, 50);
+            this.ConnectButton.Size = new System.Drawing.Size(293, 33);
             this.ConnectButton.TabIndex = 3;
             this.ConnectButton.Text = "Connect";
             this.ConnectButton.UseVisualStyleBackColor = false;
@@ -234,9 +239,10 @@
             // LineBreak3
             // 
             this.LineBreak3.BackColor = System.Drawing.Color.White;
-            this.LineBreak3.Location = new System.Drawing.Point(0, 482);
+            this.LineBreak3.Location = new System.Drawing.Point(0, 321);
+            this.LineBreak3.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.LineBreak3.Name = "LineBreak3";
-            this.LineBreak3.Size = new System.Drawing.Size(480, 2);
+            this.LineBreak3.Size = new System.Drawing.Size(320, 1);
             this.LineBreak3.TabIndex = 27;
             // 
             // CurrentPortLabel
@@ -244,9 +250,10 @@
             this.CurrentPortLabel.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
             this.CurrentPortLabel.Font = new System.Drawing.Font("DS-Digital", 25F, System.Drawing.FontStyle.Bold);
             this.CurrentPortLabel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(150)))), ((int)(((byte)(255)))), ((int)(((byte)(140)))));
-            this.CurrentPortLabel.Location = new System.Drawing.Point(330, 221);
+            this.CurrentPortLabel.Location = new System.Drawing.Point(220, 147);
+            this.CurrentPortLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.CurrentPortLabel.Name = "CurrentPortLabel";
-            this.CurrentPortLabel.Size = new System.Drawing.Size(130, 50);
+            this.CurrentPortLabel.Size = new System.Drawing.Size(87, 33);
             this.CurrentPortLabel.TabIndex = 24;
             this.CurrentPortLabel.Text = "N/A";
             this.CurrentPortLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -256,9 +263,10 @@
             this.CurrentIPLabel.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
             this.CurrentIPLabel.Font = new System.Drawing.Font("DS-Digital", 25F, System.Drawing.FontStyle.Bold);
             this.CurrentIPLabel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(150)))), ((int)(((byte)(255)))), ((int)(((byte)(140)))));
-            this.CurrentIPLabel.Location = new System.Drawing.Point(20, 221);
+            this.CurrentIPLabel.Location = new System.Drawing.Point(13, 147);
+            this.CurrentIPLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.CurrentIPLabel.Name = "CurrentIPLabel";
-            this.CurrentIPLabel.Size = new System.Drawing.Size(300, 50);
+            this.CurrentIPLabel.Size = new System.Drawing.Size(200, 33);
             this.CurrentIPLabel.TabIndex = 23;
             this.CurrentIPLabel.Text = "N/A";
             this.CurrentIPLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -266,9 +274,10 @@
             // LineBreak2
             // 
             this.LineBreak2.BackColor = System.Drawing.Color.White;
-            this.LineBreak2.Location = new System.Drawing.Point(0, 324);
+            this.LineBreak2.Location = new System.Drawing.Point(0, 216);
+            this.LineBreak2.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.LineBreak2.Name = "LineBreak2";
-            this.LineBreak2.Size = new System.Drawing.Size(480, 2);
+            this.LineBreak2.Size = new System.Drawing.Size(320, 1);
             this.LineBreak2.TabIndex = 22;
             // 
             // LastConnectionLabel
@@ -277,10 +286,11 @@
             this.LastConnectionLabel.BackColor = System.Drawing.Color.Black;
             this.LastConnectionLabel.Font = new System.Drawing.Font("Century Gothic", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.LastConnectionLabel.ForeColor = System.Drawing.SystemColors.Control;
-            this.LastConnectionLabel.Location = new System.Drawing.Point(60, 439);
+            this.LastConnectionLabel.Location = new System.Drawing.Point(40, 293);
+            this.LastConnectionLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.LastConnectionLabel.Name = "LastConnectionLabel";
-            this.LastConnectionLabel.Padding = new System.Windows.Forms.Padding(5, 0, 5, 0);
-            this.LastConnectionLabel.Size = new System.Drawing.Size(361, 28);
+            this.LastConnectionLabel.Padding = new System.Windows.Forms.Padding(3, 0, 3, 0);
+            this.LastConnectionLabel.Size = new System.Drawing.Size(237, 19);
             this.LastConnectionLabel.TabIndex = 21;
             this.LastConnectionLabel.Text = "LAST CONNECTION DEPARTED";
             // 
@@ -290,10 +300,11 @@
             this.PortLabel3.BackColor = System.Drawing.Color.Maroon;
             this.PortLabel3.Font = new System.Drawing.Font("Century Gothic", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.PortLabel3.ForeColor = System.Drawing.SystemColors.Control;
-            this.PortLabel3.Location = new System.Drawing.Point(360, 341);
+            this.PortLabel3.Location = new System.Drawing.Point(240, 227);
+            this.PortLabel3.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.PortLabel3.Name = "PortLabel3";
-            this.PortLabel3.Padding = new System.Windows.Forms.Padding(5, 0, 5, 0);
-            this.PortLabel3.Size = new System.Drawing.Size(79, 28);
+            this.PortLabel3.Padding = new System.Windows.Forms.Padding(3, 0, 3, 0);
+            this.PortLabel3.Size = new System.Drawing.Size(53, 19);
             this.PortLabel3.TabIndex = 20;
             this.PortLabel3.Text = "PORT";
             // 
@@ -303,19 +314,21 @@
             this.IPLabel3.BackColor = System.Drawing.Color.Maroon;
             this.IPLabel3.Font = new System.Drawing.Font("Century Gothic", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.IPLabel3.ForeColor = System.Drawing.SystemColors.Control;
-            this.IPLabel3.Location = new System.Drawing.Point(51, 341);
+            this.IPLabel3.Location = new System.Drawing.Point(34, 227);
+            this.IPLabel3.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.IPLabel3.Name = "IPLabel3";
-            this.IPLabel3.Padding = new System.Windows.Forms.Padding(5, 0, 5, 0);
-            this.IPLabel3.Size = new System.Drawing.Size(257, 28);
+            this.IPLabel3.Padding = new System.Windows.Forms.Padding(3, 0, 3, 0);
+            this.IPLabel3.Size = new System.Drawing.Size(169, 19);
             this.IPLabel3.TabIndex = 19;
             this.IPLabel3.Text = "INTERNET PROTOCOL";
             // 
             // LineBreak1
             // 
             this.LineBreak1.BackColor = System.Drawing.Color.White;
-            this.LineBreak1.Location = new System.Drawing.Point(0, 166);
+            this.LineBreak1.Location = new System.Drawing.Point(0, 111);
+            this.LineBreak1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.LineBreak1.Name = "LineBreak1";
-            this.LineBreak1.Size = new System.Drawing.Size(480, 2);
+            this.LineBreak1.Size = new System.Drawing.Size(320, 1);
             this.LineBreak1.TabIndex = 10;
             // 
             // CurrentConnectionLabel
@@ -324,10 +337,11 @@
             this.CurrentConnectionLabel.BackColor = System.Drawing.Color.Black;
             this.CurrentConnectionLabel.Font = new System.Drawing.Font("Century Gothic", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.CurrentConnectionLabel.ForeColor = System.Drawing.SystemColors.Control;
-            this.CurrentConnectionLabel.Location = new System.Drawing.Point(94, 281);
+            this.CurrentConnectionLabel.Location = new System.Drawing.Point(63, 187);
+            this.CurrentConnectionLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.CurrentConnectionLabel.Name = "CurrentConnectionLabel";
-            this.CurrentConnectionLabel.Padding = new System.Windows.Forms.Padding(5, 0, 5, 0);
-            this.CurrentConnectionLabel.Size = new System.Drawing.Size(292, 28);
+            this.CurrentConnectionLabel.Padding = new System.Windows.Forms.Padding(3, 0, 3, 0);
+            this.CurrentConnectionLabel.Size = new System.Drawing.Size(191, 19);
             this.CurrentConnectionLabel.TabIndex = 9;
             this.CurrentConnectionLabel.Text = "CURRENT CONNECTION";
             // 
@@ -337,10 +351,11 @@
             this.PortLabel2.BackColor = System.Drawing.Color.Maroon;
             this.PortLabel2.Font = new System.Drawing.Font("Century Gothic", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.PortLabel2.ForeColor = System.Drawing.SystemColors.Control;
-            this.PortLabel2.Location = new System.Drawing.Point(360, 183);
+            this.PortLabel2.Location = new System.Drawing.Point(240, 122);
+            this.PortLabel2.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.PortLabel2.Name = "PortLabel2";
-            this.PortLabel2.Padding = new System.Windows.Forms.Padding(5, 0, 5, 0);
-            this.PortLabel2.Size = new System.Drawing.Size(79, 28);
+            this.PortLabel2.Padding = new System.Windows.Forms.Padding(3, 0, 3, 0);
+            this.PortLabel2.Size = new System.Drawing.Size(53, 19);
             this.PortLabel2.TabIndex = 8;
             this.PortLabel2.Text = "PORT";
             // 
@@ -350,10 +365,11 @@
             this.IPLabel2.BackColor = System.Drawing.Color.Maroon;
             this.IPLabel2.Font = new System.Drawing.Font("Century Gothic", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.IPLabel2.ForeColor = System.Drawing.SystemColors.Control;
-            this.IPLabel2.Location = new System.Drawing.Point(51, 183);
+            this.IPLabel2.Location = new System.Drawing.Point(34, 122);
+            this.IPLabel2.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.IPLabel2.Name = "IPLabel2";
-            this.IPLabel2.Padding = new System.Windows.Forms.Padding(5, 0, 5, 0);
-            this.IPLabel2.Size = new System.Drawing.Size(257, 28);
+            this.IPLabel2.Padding = new System.Windows.Forms.Padding(3, 0, 3, 0);
+            this.IPLabel2.Size = new System.Drawing.Size(169, 19);
             this.IPLabel2.TabIndex = 7;
             this.IPLabel2.Text = "INTERNET PROTOCOL";
             // 
@@ -363,10 +379,11 @@
             this.ConnectionDestinationLabel.BackColor = System.Drawing.Color.Black;
             this.ConnectionDestinationLabel.Font = new System.Drawing.Font("Century Gothic", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.ConnectionDestinationLabel.ForeColor = System.Drawing.SystemColors.Control;
-            this.ConnectionDestinationLabel.Location = new System.Drawing.Point(70, 123);
+            this.ConnectionDestinationLabel.Location = new System.Drawing.Point(47, 82);
+            this.ConnectionDestinationLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.ConnectionDestinationLabel.Name = "ConnectionDestinationLabel";
-            this.ConnectionDestinationLabel.Padding = new System.Windows.Forms.Padding(5, 0, 5, 0);
-            this.ConnectionDestinationLabel.Size = new System.Drawing.Size(339, 28);
+            this.ConnectionDestinationLabel.Padding = new System.Windows.Forms.Padding(3, 0, 3, 0);
+            this.ConnectionDestinationLabel.Size = new System.Drawing.Size(222, 19);
             this.ConnectionDestinationLabel.TabIndex = 4;
             this.ConnectionDestinationLabel.Text = "CONNECTION DESTINATION";
             // 
@@ -376,10 +393,11 @@
             this.PortLabel1.BackColor = System.Drawing.Color.Maroon;
             this.PortLabel1.Font = new System.Drawing.Font("Century Gothic", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.PortLabel1.ForeColor = System.Drawing.SystemColors.Control;
-            this.PortLabel1.Location = new System.Drawing.Point(360, 25);
+            this.PortLabel1.Location = new System.Drawing.Point(240, 17);
+            this.PortLabel1.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.PortLabel1.Name = "PortLabel1";
-            this.PortLabel1.Padding = new System.Windows.Forms.Padding(5, 0, 5, 0);
-            this.PortLabel1.Size = new System.Drawing.Size(79, 28);
+            this.PortLabel1.Padding = new System.Windows.Forms.Padding(3, 0, 3, 0);
+            this.PortLabel1.Size = new System.Drawing.Size(53, 19);
             this.PortLabel1.TabIndex = 3;
             this.PortLabel1.Text = "PORT";
             // 
@@ -389,10 +407,11 @@
             this.IPLabel1.BackColor = System.Drawing.Color.Maroon;
             this.IPLabel1.Font = new System.Drawing.Font("Century Gothic", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.IPLabel1.ForeColor = System.Drawing.SystemColors.Control;
-            this.IPLabel1.Location = new System.Drawing.Point(51, 25);
+            this.IPLabel1.Location = new System.Drawing.Point(34, 17);
+            this.IPLabel1.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.IPLabel1.Name = "IPLabel1";
-            this.IPLabel1.Padding = new System.Windows.Forms.Padding(5, 0, 5, 0);
-            this.IPLabel1.Size = new System.Drawing.Size(257, 28);
+            this.IPLabel1.Padding = new System.Windows.Forms.Padding(3, 0, 3, 0);
+            this.IPLabel1.Size = new System.Drawing.Size(169, 19);
             this.IPLabel1.TabIndex = 2;
             this.IPLabel1.Text = "INTERNET PROTOCOL";
             // 
@@ -402,9 +421,10 @@
             this.PortInput.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.PortInput.Font = new System.Drawing.Font("DS-Digital", 25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.PortInput.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(95)))), ((int)(((byte)(60)))));
-            this.PortInput.Location = new System.Drawing.Point(330, 63);
+            this.PortInput.Location = new System.Drawing.Point(220, 42);
+            this.PortInput.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.PortInput.Name = "PortInput";
-            this.PortInput.Size = new System.Drawing.Size(130, 50);
+            this.PortInput.Size = new System.Drawing.Size(87, 33);
             this.PortInput.TabIndex = 1;
             this.PortInput.Text = "4444";
             // 
@@ -414,9 +434,10 @@
             this.IPInput.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.IPInput.Font = new System.Drawing.Font("DS-Digital", 25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.IPInput.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(95)))), ((int)(((byte)(60)))));
-            this.IPInput.Location = new System.Drawing.Point(20, 63);
+            this.IPInput.Location = new System.Drawing.Point(13, 42);
+            this.IPInput.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.IPInput.Name = "IPInput";
-            this.IPInput.Size = new System.Drawing.Size(300, 50);
+            this.IPInput.Size = new System.Drawing.Size(200, 33);
             this.IPInput.TabIndex = 0;
             this.IPInput.Text = "127.0.0.1";
             // 
@@ -425,9 +446,10 @@
             this.LastPortLabel.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
             this.LastPortLabel.Font = new System.Drawing.Font("DS-Digital", 25F, System.Drawing.FontStyle.Bold);
             this.LastPortLabel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(235)))), ((int)(((byte)(210)))), ((int)(((byte)(90)))));
-            this.LastPortLabel.Location = new System.Drawing.Point(330, 379);
+            this.LastPortLabel.Location = new System.Drawing.Point(220, 253);
+            this.LastPortLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.LastPortLabel.Name = "LastPortLabel";
-            this.LastPortLabel.Size = new System.Drawing.Size(130, 50);
+            this.LastPortLabel.Size = new System.Drawing.Size(87, 33);
             this.LastPortLabel.TabIndex = 26;
             this.LastPortLabel.Text = "N/A";
             this.LastPortLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -437,25 +459,26 @@
             this.LastIPLabel.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
             this.LastIPLabel.Font = new System.Drawing.Font("DS-Digital", 25F, System.Drawing.FontStyle.Bold);
             this.LastIPLabel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(235)))), ((int)(((byte)(210)))), ((int)(((byte)(90)))));
-            this.LastIPLabel.Location = new System.Drawing.Point(20, 379);
+            this.LastIPLabel.Location = new System.Drawing.Point(13, 253);
+            this.LastIPLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.LastIPLabel.Name = "LastIPLabel";
-            this.LastIPLabel.Size = new System.Drawing.Size(300, 50);
+            this.LastIPLabel.Size = new System.Drawing.Size(200, 33);
             this.LastIPLabel.TabIndex = 25;
             this.LastIPLabel.Text = "N/A";
             this.LastIPLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // ChatWindow
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(144F, 144F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(75)))), ((int)(((byte)(75)))), ((int)(((byte)(75)))));
-            this.ClientSize = new System.Drawing.Size(1920, 1080);
+            this.ClientSize = new System.Drawing.Size(1280, 721);
             this.Controls.Add(this.ConnectionControlPanel);
             this.Controls.Add(this.ChatInputPanel);
             this.Controls.Add(this.ServerLog);
             this.Font = new System.Drawing.Font("Century Gothic", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.Margin = new System.Windows.Forms.Padding(6, 8, 6, 8);
+            this.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.Name = "ChatWindow";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "ChatEngine V0.2.1";

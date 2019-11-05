@@ -17,9 +17,17 @@ namespace Server
         UpdateServerLogDelegate updateServerLogDelegate;
         CloseFormDelegate closeFormDelegate;
         Server_Server server;
+        void ApplyLayoutChanges()
+        {
+            IPInput.SelectionAlignment = HorizontalAlignment.Center;
+            PortInput.SelectionAlignment = HorizontalAlignment.Center;
+            ServerNameInput.SelectionAlignment = HorizontalAlignment.Center;
+        }
+
         public ServerWindow(Server_Server server)
         {
             InitializeComponent();
+            ApplyLayoutChanges();
             updateServerLogDelegate = new UpdateServerLogDelegate(UpdateServerLog);
             closeFormDelegate = new CloseFormDelegate(CloseForm);
             this.server = server;
@@ -105,6 +113,19 @@ namespace Server
         private void ServerLog_LinkClicked(object sender, LinkClickedEventArgs e)
         {
             System.Diagnostics.Process.Start(e.LinkText);
+        }
+
+        private void RenameButton_Click(object sender, EventArgs e)
+        {
+            if (ServerNameInput.Text != "")
+                server.ProcessCommand(Message_Origins.SERVER, "/rename_server " + ServerNameInput.Text);
+            else
+                server.ProcessCommand(Message_Origins.SERVER, "/log Error: There must have at least 1 character in the servers name");
+         }
+
+        private void ConnectButton_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

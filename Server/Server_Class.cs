@@ -252,10 +252,12 @@ namespace Server
         {
             try
             {
+                if(memoryStream != null) memoryStream.Dispose();
                 memoryStream = new MemoryStream();
                 binaryFormatter.Serialize(memoryStream, data);
                 memoryStream.Flush();
                 byte[] buffer = memoryStream.GetBuffer();
+                if (memoryStream != null) memoryStream.Dispose();
                 memoryStream = new MemoryStream();
 
                 client.bwriter.Write(buffer.Length);
@@ -297,6 +299,7 @@ namespace Server
                     memoryStream.Write(buffer, 0, noOfIncomingBytes);
                     memoryStream.Position = 0;
                     Packet rawPacket = binaryFormatter.Deserialize(memoryStream) as Packet;
+                    if (memoryStream != null) memoryStream.Dispose();
                     memoryStream = new MemoryStream();
                     switch (rawPacket.type)
                     {
@@ -476,6 +479,11 @@ namespace Server
                 {
                     switch (commandType.ToLower())
                     {
+                        case "/log":
+                            {
+                                Log(commandDataString);
+                                    break;
+                            }
                         case "/new_user":
                             {
                                 Process.Start("D:\\OneDrive - Staffordshire University\\Desktop\\University\\Repos\\C# Projects\\NewServer\\Client\\Bin\\Debug\\NewServer.exe");
