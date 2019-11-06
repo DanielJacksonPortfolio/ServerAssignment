@@ -58,7 +58,7 @@ namespace Client
             catch(SocketException e)
             {
                 Console.WriteLine("Exception: Connection error - "+e.Message);
-                chatWindow.UpdateServerLog("Error - Failed to connect: IP - " + ipAddress + ", Port - " + port.ToString(), Color.DarkRed);
+                chatWindow.UpdateServerLog("Error: Failed to connect: IP - " + ipAddress + ", Port - " + port.ToString(), Color.DarkRed);
                 connected = false;
             }
         }

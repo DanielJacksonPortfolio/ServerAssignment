@@ -140,13 +140,13 @@ namespace Client
                     ServerLog.SelectionColor = color;
                     if (message.Contains(':'))
                     {
-                        ServerLog.AppendText(message.Substring(0,message.IndexOf(':')));
+                        ServerLog.AppendText(message.Substring(0, message.IndexOf(':') + 1));
                         ServerLog.SelectionColor = ServerLog.ForeColor;
-                        ServerLog.AppendText(message.Substring(message.IndexOf(':')) + "\n");
+                        ServerLog.AppendText(message.Substring(message.IndexOf(':') + 1) + "\n");
                     }
                     else
                     {
-                        ServerLog.AppendText(message+"\n");
+                        ServerLog.AppendText(message + "\n");
                         ServerLog.SelectionColor = ServerLog.ForeColor;
                     }
 
@@ -166,7 +166,7 @@ namespace Client
         public void InitializeClient(Client_Client client)
         {
             this.client = client;
-            UpdateServerLog("Welcome to my chat window. You can connect to a server by inputing your desired IP and Port into the 'Connection Destination' boxes. Choose a username and click connect",Color.Fuchsia);
+            UpdateServerLog("Chat Window - V0.2.2", Color.DarkGreen);
         }
 
         public void CloseForm()

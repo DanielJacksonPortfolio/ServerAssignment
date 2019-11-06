@@ -163,7 +163,7 @@
             // 
             // ChatColor
             // 
-            this.ChatColor.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(31)))), ((int)(((byte)(215)))), ((int)(((byte)(76)))));
+            this.ChatColor.BackColor = System.Drawing.Color.DarkGreen;
             this.ChatColor.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.ChatColor.Location = new System.Drawing.Point(123, 622);
             this.ChatColor.Name = "ChatColor";

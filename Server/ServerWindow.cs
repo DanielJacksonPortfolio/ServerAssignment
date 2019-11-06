@@ -83,8 +83,17 @@ namespace Server
                     ServerLog.SelectionStart = ServerLog.TextLength;
                     ServerLog.SelectionLength = 0;
                     ServerLog.SelectionColor = color;
-                    ServerLog.AppendText(message + "\n");
-                    ServerLog.SelectionColor = ServerLog.ForeColor;
+                    if (message.Contains(':'))
+                    {
+                        ServerLog.AppendText(message.Substring(0, message.IndexOf(':')+1));
+                        ServerLog.SelectionColor = ServerLog.ForeColor;
+                        ServerLog.AppendText(message.Substring(message.IndexOf(':')+1) + "\n");
+                    }
+                    else
+                    {
+                        ServerLog.AppendText(message + "\n");
+                        ServerLog.SelectionColor = ServerLog.ForeColor;
+                    }
 
                     ServerLog.SelectionStart = ServerLog.Text.Length;
                     ServerLog.ScrollToCaret();
@@ -145,7 +154,7 @@ namespace Server
         public void InitializeServer(Server_Server server)
         {
             this.server = server;
-            UpdateServerLog("Welcome to the server window. You can listen by inputing your desired IP and Port into the 'Connection Destination' boxes. Choose a server name and click connect\n-------------------------------------------------------------------------------------------------------------------------------------------------------------",Color.FromArgb(80,240,60));
+            UpdateServerLog("Server Window - V0.2.1",Color.DarkGreen);
         }
         public void StartConnection()
         {
