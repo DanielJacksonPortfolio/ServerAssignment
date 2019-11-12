@@ -70,28 +70,44 @@ namespace Server
 
         }
 
-        public void UpdateServerLog(string message, Color color)
+        public void UpdateServerLog(string message, Color sendercolor)
         {
             try
             {
                 if (ServerLog.InvokeRequired)
                 {
-                    Invoke(updateServerLogDelegate, message, color);
+                    Invoke(updateServerLogDelegate, message, sendercolor);
                 }
                 else
                 {
                     ServerLog.SelectionStart = ServerLog.TextLength;
                     ServerLog.SelectionLength = 0;
-                    ServerLog.SelectionColor = color;
+                    ServerLog.SelectionColor = sendercolor;
+                    List<string> messageComponents = new List<string>();
                     if (message.Contains(':'))
                     {
-                        ServerLog.AppendText(message.Substring(0, message.IndexOf(':')+1));
-                        ServerLog.SelectionColor = ServerLog.ForeColor;
-                        ServerLog.AppendText(message.Substring(message.IndexOf(':')+1) + "\n");
+                        messageComponents.Add(message.Substring(0, message.IndexOf(':') + 1));
+                        messageComponents.Add(message.Substring(message.IndexOf(':') + 1) + "\n");
                     }
                     else
                     {
-                        ServerLog.AppendText(message + "\n");
+                        messageComponents.Add(message + "\n");
+                    }
+                    for (int i = 0; i < messageComponents.Count; ++i)
+                    {
+                        while (messageComponents[i].Contains("<color"))
+                        {
+                            int startOfTag = messageComponents[i].IndexOf("<color (");
+                            int endOfTag = messageComponents[i].IndexOf(")>");
+                            string colorString = messageComponents[i].Substring(startOfTag + 8, endOfTag - startOfTag - 8);
+                            string[] colors = colorString.Split(',');
+                            ServerLog.AppendText(messageComponents[i].Substring(0, startOfTag));
+                            ServerLog.SelectionColor = Color.FromArgb(Int32.Parse(colors[0]), Int32.Parse(colors[1]), Int32.Parse(colors[2]));
+                            ServerLog.AppendText(messageComponents[i].Substring(endOfTag+2, messageComponents[i].IndexOf("</color>") - endOfTag - 2));
+                            messageComponents[i] = messageComponents[i].Substring(messageComponents[i].IndexOf("</color>") + 8);
+                            ServerLog.SelectionColor = ServerLog.ForeColor;
+                        }
+                        ServerLog.AppendText(messageComponents[i]);
                         ServerLog.SelectionColor = ServerLog.ForeColor;
                     }
 
