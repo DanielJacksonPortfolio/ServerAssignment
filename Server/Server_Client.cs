@@ -1,22 +1,17 @@
-﻿using PacketData;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System;
 using System.IO;
-using System.Net;
 using System.Net.Sockets;
 using System.Runtime.Serialization.Formatters.Binary;
-using System.Text;
-using System.Threading;
+using System.Net;
 using System.Drawing;
-using System.Windows.Forms;
+using PacketData;
 
 namespace Server
 {
-
-    class Server_Client : IDisposable
+    public class Server_Client : IDisposable
     {
-        Socket socket;
+        Socket tcpSocket;
+        Socket udpSocket;
         NetworkStream stream;
         bool op = false;
         bool disposed = false;
@@ -24,20 +19,95 @@ namespace Server
         public Color color { get; set; }
         public BinaryReader breader { get; private set; }
         public BinaryWriter bwriter { get; private set; }
+        private MemoryStream memoryStream = new MemoryStream();
+        BinaryFormatter binaryFormatter = new BinaryFormatter();
 
-        public Server_Client(Socket socket)
+        public Packet CreateLoginPacket(EndPoint endPoint)
         {
-            this.socket = socket;
+            return new LoginPacket(endPoint);
+        }
+
+        public Server_Client()
+        {
             ID = "";
             color = Color.Black;
-            stream = new NetworkStream(this.socket, true);
+        }
+
+        public void TCPConnect(Socket socket)
+        {
+            this.tcpSocket = socket;
+            stream = new NetworkStream(this.tcpSocket, true);
             breader = new BinaryReader(stream);
             bwriter = new BinaryWriter(stream);
         }
 
+        public void UDPConnect(Socket socket, EndPoint endPoint)
+        {
+            this.udpSocket = socket;
+            udpSocket.Connect(endPoint);
+            TCPSend(CreateLoginPacket(udpSocket.LocalEndPoint));
+
+
+            stream = new NetworkStream(this.tcpSocket, true);
+            breader = new BinaryReader(stream);
+            bwriter = new BinaryWriter(stream);
+        }
+
+        public void TCPSend(Packet data)
+        {
+            try
+            {
+                memoryStream.SetLength(0);
+                binaryFormatter.Serialize(memoryStream, data);
+                memoryStream.Flush();
+                byte[] buffer = memoryStream.GetBuffer();
+                memoryStream.SetLength(0);
+
+                this.bwriter.Write(buffer.Length);
+                this.bwriter.Write(buffer);
+                this.bwriter.Flush();
+            }
+            catch (IOException e)
+            {
+                Console.WriteLine("Send Failed - " + e.Message);
+            }
+        }
+        
+        public void UDPSend(Packet data)
+        {
+            try
+            {
+                memoryStream.SetLength(0);
+                binaryFormatter.Serialize(memoryStream, data);
+                memoryStream.Flush();
+                byte[] buffer = memoryStream.GetBuffer();
+                memoryStream.SetLength(0);
+                udpSocket.Send(buffer, buffer.Length, SocketFlags.None);
+            }
+            catch (IOException e)
+            {
+                Console.WriteLine("Send Failed - " + e.Message);
+            }
+        }
+
+        public Packet TCPRead()
+        {
+            int noOfIncomingBytes;
+            if ((noOfIncomingBytes = this.breader.ReadInt32()) != 0)
+            {
+                byte[] buffer = this.breader.ReadBytes(noOfIncomingBytes);
+                memoryStream.Write(buffer, 0, noOfIncomingBytes);
+                memoryStream.Position = 0;
+                Packet rawPacket = binaryFormatter.Deserialize(memoryStream) as Packet;
+                memoryStream.SetLength(0);
+                return rawPacket;
+            }
+            return null;
+        }
+
         public void Close()
         {
-            socket.Close();
+            tcpSocket.Close();
         }
 
         public void SetOP(bool val)
@@ -60,6 +130,10 @@ namespace Server
                 }
                 disposed = true;
             }
+        }
+        public string ColorID()
+        {
+            return "<color (" + this.color.R + "," + this.color.G + "," + this.color.B + ")>" + this.ID + "</color>";
         }
 
         public bool GetOP()

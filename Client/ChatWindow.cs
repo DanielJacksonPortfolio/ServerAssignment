@@ -159,7 +159,12 @@ namespace Client
                             string colorString = messageComponents[i].Substring(startOfTag + 8, endOfTag - startOfTag - 8);
                             string[] colors = colorString.Split(',');
                             ServerLog.AppendText(messageComponents[i].Substring(0, startOfTag));
-                            ServerLog.SelectionColor = Color.FromArgb(Int32.Parse(colors[0]), Int32.Parse(colors[1]), Int32.Parse(colors[2]));
+                            if(colors.Length == 3)
+                            {
+                                int r = 0, g = 0, b = 0;
+                                if(Int32.TryParse(colors[0],out r) && Int32.TryParse(colors[1], out g) && Int32.TryParse(colors[2], out b))
+                                    ServerLog.SelectionColor = Color.FromArgb(r,g,b);
+                            }
                             ServerLog.AppendText(messageComponents[i].Substring(endOfTag + 2, messageComponents[i].IndexOf("</color>") - endOfTag - 2));
                             messageComponents[i] = messageComponents[i].Substring(messageComponents[i].IndexOf("</color>") + 8);
                             ServerLog.SelectionColor = ServerLog.ForeColor;

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Drawing;
-using System.Collections.Generic;
-using System.Text;
+using System.Net;
 
 namespace PacketData
 {
@@ -10,8 +9,10 @@ namespace PacketData
         INVALID,
         CHAT_MESSAGE,
         DISCONNECT,
+        CLIENT_LIST,
         COLOR,
-        INIT_MESSAGE
+        INIT_MESSAGE,
+        LOGIN
     }
 
     [Serializable]
@@ -74,6 +75,16 @@ namespace PacketData
             this.type = PacketType.DISCONNECT;
             this.disconnectType = type;
             this.message = message;
+        }
+    }
+    [Serializable]
+    public class LoginPacket : Packet
+    {
+        public EndPoint endPoint;
+        public LoginPacket(EndPoint endPoint)
+        {
+            this.endPoint = endPoint;
+            this.type = PacketType.LOGIN;
         }
     }
 }

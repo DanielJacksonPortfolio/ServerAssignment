@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Drawing;
 using System.Threading;
 using System.Net.Sockets;
-using System.Net;
 using System.IO;
-using System.Windows.Forms;
 using System.Runtime.Serialization.Formatters.Binary;
 using PacketData;
 
@@ -66,6 +63,7 @@ namespace Client
         public void Run()
         {
             readerThread.Start();
+            //ProcessMessage(idTemp,PacketType.INIT_MESSAGE);
             SendInitMessage(idTemp, chatWindow.GetColor());
         }
 
@@ -99,6 +97,7 @@ namespace Client
             {
                 try
                 {
+                    memoryStream.SetLength(0);
                     binaryFormatter.Serialize(memoryStream, data);
                     memoryStream.Flush();
                     byte[] buffer = memoryStream.GetBuffer();

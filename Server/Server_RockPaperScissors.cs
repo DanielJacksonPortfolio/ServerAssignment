@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Server
+﻿namespace Server
 {
     class RockPaperScissorsGame
     {
@@ -87,7 +81,7 @@ namespace Server
 
         public void FinishGame()
         {
-            string gameString = "Server: " + player1ID + " played " + player1Move + ". " + player2ID + " played " + player2Move + ".";
+            string gameString = "Server: " + server.GetClientFromID(player1ID).ColorID() + " played " + player1Move + ". " + server.GetClientFromID(player2ID).ColorID() + " played " + player2Move + ".";
 
             server.MessageClient(gameString, player1ID, server.messageColor);
             server.MessageClient(gameString, player2ID, server.messageColor);
@@ -95,17 +89,17 @@ namespace Server
             string winString = "";
             bool replay = false;
             if (player1Move == "Rock" && player2Move == "Scissors")
-                winString = "Server: " + player1ID + " Wins!";
+                winString = "Server: " + server.GetClientFromID(player1ID).ColorID() + " Wins!";
             else if (player1Move == "Rock" && player2Move == "Paper")
-                winString = "Server: " + player2ID + " Wins!";
+                winString = "Server: " + server.GetClientFromID(player2ID).ColorID() + " Wins!";
             else if (player1Move == "Scissors" && player2Move == "Paper")
-                winString = "Server: " + player1ID + " Wins!";
+                winString = "Server: " + server.GetClientFromID(player1ID).ColorID() + " Wins!";
             else if (player1Move == "Scissors" && player2Move == "Rock")
-                winString = "Server: " + player2ID + " Wins!";
+                winString = "Server: " + server.GetClientFromID(player2ID).ColorID() + " Wins!";
             else if (player1Move == "Paper" && player2Move == "Rock")
-                winString = "Server: " + player1ID + " Wins!";
+                winString = "Server: " + server.GetClientFromID(player1ID).ColorID() + " Wins!";
             else if (player1Move == "Paper" && player2Move == "Scissors")
-                winString = "Server: " + player2ID + " Wins!";
+                winString = "Server: " + server.GetClientFromID(player2ID).ColorID() + " Wins!";
             else if (player1Move == player2Move)
             {
                 winString = "Server: Tie, play another round";
