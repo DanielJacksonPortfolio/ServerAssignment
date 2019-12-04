@@ -4,10 +4,10 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{B8D24254-30C0-4F9C-B297-139F2E6F53A8}</ProjectGuid>
+    <ProjectGuid>{AE4E7DE2-282A-483C-BC65-963D087422FE}</ProjectGuid>
     <OutputType>WinExe</OutputType>
-    <RootNamespace>Client</RootNamespace>
-    <AssemblyName>NewServer</AssemblyName>
+    <RootNamespace>Game</RootNamespace>
+    <AssemblyName>Game</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -63,27 +63,29 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ChatWindow.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="ChatWindow.Designer.cs">
-      <DependentUpon>ChatWindow.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Client_Client.cs" />
-    <Compile Include="Client_Game.cs" />
-    <Compile Include="Client_Main.cs" />
-    <Compile Include="GameWindow.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="GameWindow.Designer.cs">
-      <DependentUpon>GameWindow.cs</DependentUpon>
-    </Compile>
-    <Compile Include="GameControl.cs">
+    <Compile Include="MonoGameWindow.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="MonoGameWindow.Designer.cs">
+      <DependentUpon>MonoGameWindow.cs</DependentUpon>
+    </Compile>
+    <Compile Include="GameForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="GameForm.Designer.cs">
+      <DependentUpon>GameForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="GameItem.cs" />
+    <Compile Include="Level.cs" />
+    <Compile Include="Main.cs" />
+    <Compile Include="Platform.cs" />
+    <Compile Include="Player.cs" />
+    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="ChatWindow.resx">
-      <DependentUpon>ChatWindow.cs</DependentUpon>
+    <Compile Include="Unarmed.cs" />
+    <Compile Include="Weapon.cs" />
+    <EmbeddedResource Include="GameForm.resx">
+      <DependentUpon>GameForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -93,8 +95,25 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
-      <DesignTime>True</DesignTime>
     </Compile>
+    <None Include="Content\2D\Stick.pdn" />
+    <None Include="Content\bin\Windows\2D\mario.xnb" />
+    <None Include="Content\bin\Windows\2D\platform.xnb" />
+    <None Include="Content\bin\Windows\2D\Stick.xnb" />
+    <None Include="Content\bin\Windows\Content\2D\mario.xnb" />
+    <None Include="Content\bin\Windows\Content\2D\platform.xnb" />
+    <None Include="Content\bin\Windows\Content\2D\Stick.xnb" />
+    <None Include="Content\Content.mgcb" />
+    <None Include="Content\obj\Windows\.mgcontent" />
+    <None Include="Content\obj\Windows\.mgstats" />
+    <None Include="Content\obj\Windows\2D\mario.mgcontent" />
+    <None Include="Content\obj\Windows\2D\platform.mgcontent" />
+    <None Include="Content\obj\Windows\2D\Stick.mgcontent" />
+    <None Include="Content\obj\Windows\Content\.mgcontent" />
+    <None Include="Content\obj\Windows\Content\.mgstats" />
+    <None Include="Content\obj\Windows\Content\2D\mario.mgcontent" />
+    <None Include="Content\obj\Windows\Content\2D\platform.mgcontent" />
+    <None Include="Content\obj\Windows\Content\2D\Stick.mgcontent" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -109,13 +128,21 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <Import Project="..\PacketData\PacketData.projitems" Label="Shared" />
+  <ItemGroup>
+    <Content Include="Content\2D\mario.png" />
+    <Content Include="Content\2D\platform.png" />
+    <Content Include="Content\2D\Stick.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Content\Audio\" />
+    <Folder Include="Content\Fonts\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="..\packages\MonoGame.Forms.DX.2.3.8\Build\MonoGame.Forms.DX.targets" Condition="Exists('..\packages\MonoGame.Forms.DX.2.3.8\Build\MonoGame.Forms.DX.targets')" />
+  <Import Project="..\packages\MonoGame.Forms.DX.2.3.8\build\MonoGame.Forms.DX.targets" Condition="Exists('..\packages\MonoGame.Forms.DX.2.3.8\build\MonoGame.Forms.DX.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\packages\MonoGame.Forms.DX.2.3.8\Build\MonoGame.Forms.DX.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\MonoGame.Forms.DX.2.3.8\Build\MonoGame.Forms.DX.targets'))" />
+    <Error Condition="!Exists('..\packages\MonoGame.Forms.DX.2.3.8\build\MonoGame.Forms.DX.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\MonoGame.Forms.DX.2.3.8\build\MonoGame.Forms.DX.targets'))" />
   </Target>
 </Project>

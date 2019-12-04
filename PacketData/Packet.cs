@@ -83,8 +83,8 @@ namespace PacketData
         public EndPoint endPoint;
         public LoginPacket(EndPoint endPoint)
         {
-            this.endPoint = endPoint;
             this.type = PacketType.LOGIN;
+            this.endPoint = endPoint;
         }
     }
 }

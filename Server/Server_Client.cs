@@ -19,7 +19,6 @@ namespace Server
         public Color color { get; set; }
         public BinaryReader breader { get; private set; }
         public BinaryWriter bwriter { get; private set; }
-        private MemoryStream memoryStream = new MemoryStream();
         BinaryFormatter binaryFormatter = new BinaryFormatter();
 
         public Packet CreateLoginPacket(EndPoint endPoint)
@@ -29,8 +28,8 @@ namespace Server
 
         public Server_Client()
         {
-            ID = "";
             color = Color.Black;
+            this.udpSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
         }
 
         public void TCPConnect(Socket socket)
@@ -41,52 +40,52 @@ namespace Server
             bwriter = new BinaryWriter(stream);
         }
 
-        public void UDPConnect(Socket socket, EndPoint endPoint)
+        public void UDPConnect(EndPoint endPoint)
         {
-            this.udpSocket = socket;
             udpSocket.Connect(endPoint);
             TCPSend(CreateLoginPacket(udpSocket.LocalEndPoint));
+        }
 
+        byte[] Serialize(Packet data)
+        {
+            MemoryStream memoryStream = new MemoryStream();
+            binaryFormatter.Serialize(memoryStream, data);
+            return memoryStream.GetBuffer();
+        }
 
-            stream = new NetworkStream(this.tcpSocket, true);
-            breader = new BinaryReader(stream);
-            bwriter = new BinaryWriter(stream);
+        Packet Deserialize(byte[] buffer)
+        {
+            MemoryStream memoryStream = new MemoryStream();
+            memoryStream.Write(buffer, 0, buffer.Length);
+            memoryStream.Position = 0;
+            return binaryFormatter.Deserialize(memoryStream) as Packet;
         }
 
         public void TCPSend(Packet data)
         {
             try
             {
-                memoryStream.SetLength(0);
-                binaryFormatter.Serialize(memoryStream, data);
-                memoryStream.Flush();
-                byte[] buffer = memoryStream.GetBuffer();
-                memoryStream.SetLength(0);
-
+                byte[] buffer = Serialize(data);
                 this.bwriter.Write(buffer.Length);
                 this.bwriter.Write(buffer);
                 this.bwriter.Flush();
             }
             catch (IOException e)
             {
-                Console.WriteLine("Send Failed - " + e.Message);
+                Console.WriteLine("TCP Send Failed - " + e.Message);
             }
         }
-        
+
         public void UDPSend(Packet data)
         {
             try
             {
-                memoryStream.SetLength(0);
-                binaryFormatter.Serialize(memoryStream, data);
-                memoryStream.Flush();
-                byte[] buffer = memoryStream.GetBuffer();
-                memoryStream.SetLength(0);
+                byte[] buffer = Serialize(data);
                 udpSocket.Send(buffer, buffer.Length, SocketFlags.None);
             }
             catch (IOException e)
             {
-                Console.WriteLine("Send Failed - " + e.Message);
+                Console.WriteLine("UDP Send Failed - " + e.Message);
             }
         }
 
@@ -94,20 +93,23 @@ namespace Server
         {
             int noOfIncomingBytes;
             if ((noOfIncomingBytes = this.breader.ReadInt32()) != 0)
-            {
-                byte[] buffer = this.breader.ReadBytes(noOfIncomingBytes);
-                memoryStream.Write(buffer, 0, noOfIncomingBytes);
-                memoryStream.Position = 0;
-                Packet rawPacket = binaryFormatter.Deserialize(memoryStream) as Packet;
-                memoryStream.SetLength(0);
-                return rawPacket;
-            }
+                return Deserialize(this.breader.ReadBytes(noOfIncomingBytes));
+            return null;
+        }
+
+        public Packet UDPRead()
+        {
+            byte[] buffer = new byte[512];
+            int noOfIncomingBytes;
+            if ((noOfIncomingBytes = udpSocket.Receive(buffer)) != 0)
+                return Deserialize(buffer);
             return null;
         }
 
         public void Close()
         {
             tcpSocket.Close();
+            udpSocket.Close();
         }
 
         public void SetOP(bool val)
@@ -126,11 +128,16 @@ namespace Server
             {
                 if (disposing)
                 {
+                    tcpSocket.Dispose();
+                    udpSocket.Dispose();
                     stream.Dispose();
+                    breader.Dispose();
+                    bwriter.Dispose();
                 }
                 disposed = true;
             }
         }
+
         public string ColorID()
         {
             return "<color (" + this.color.R + "," + this.color.G + "," + this.color.B + ")>" + this.ID + "</color>";

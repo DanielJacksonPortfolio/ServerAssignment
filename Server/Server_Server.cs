@@ -16,17 +16,19 @@ namespace Server
     public class Server_Server : IDisposable
     {
         TcpListener server = null;
+        ServerWindow serverWindow;
+        IPAddress ip;
+        int port;
+
         List<Server_Client> clients = new List<Server_Client>();
         List<RockPaperScissorsGame> rpsGames = new List<RockPaperScissorsGame>();
         string serverID = "Server";
         Thread connectorThread;
-        ServerWindow serverWindow;
-        IPAddress ip;
         public Color errorColor = Color.DarkRed;
         public Color announceColor = Color.RoyalBlue;
         public Color messageColor = Color.SaddleBrown;
         public Color logColor = Color.Yellow;
-        int port;
+
         bool connected = false;
         bool disposed = false;
         MemoryStream memoryStream = new MemoryStream();
@@ -92,26 +94,6 @@ namespace Server
             }
         }
 
-        //void Send(Packet data, Server_Client client)
-        //{
-        //    try
-        //    {
-        //        memoryStream.SetLength(0);
-        //        binaryFormatter.Serialize(memoryStream, data);
-        //        memoryStream.Flush();
-        //        byte[] buffer = memoryStream.GetBuffer();
-        //        memoryStream.SetLength(0);
-
-        //        client.bwriter.Write(buffer.Length);
-        //        client.bwriter.Write(buffer);
-        //        client.bwriter.Flush();
-        //    }
-        //    catch (IOException e)
-        //    {
-        //        Console.WriteLine("Send Failed - " + e.Message);
-        //    }
-        //}
-
         public Packet CreateChatPacket(string message, Color color)
         {
             return new ChatMessagePacket(message, color);
@@ -125,46 +107,43 @@ namespace Server
             return new DisconnectPacket(message, dType);
         }
 
-        bool Receive(Server_Client client)
+        bool HandlePacket(Server_Client client, Packet rawPacket)
         {
-            try
+            if (rawPacket != null)
             {
-                Packet rawPacket = client.TCPRead();
-                if (rawPacket != null)
+                switch (rawPacket.type)
                 {
-                    switch (rawPacket.type)
-                    {
-                        case PacketType.CHAT_MESSAGE:
-                            {
-                                ChatMessagePacket packet = (ChatMessagePacket)rawPacket;
-                                ProcessClientMessage(packet.message, clients.IndexOf(client));
-                                break;
-                            }
-                        case PacketType.INIT_MESSAGE:
-                            {
-                                InitMessagePacket packet = (InitMessagePacket)rawPacket;
-                                SetClientColor(client, packet.chatColor, true);
-                                SetClientID(client, packet.message);
-                                break;
-                            }
-                        case PacketType.COLOR:
-                            {
-                                ColorPacket packet = (ColorPacket)rawPacket;
-                                SetClientColor(client, packet.color);
-                                break;
-                            }
-                    }
+                    case PacketType.CHAT_MESSAGE:
+                        {
+                            ChatMessagePacket packet = (ChatMessagePacket)rawPacket;
+                            ProcessClientMessage(packet.message, clients.IndexOf(client));
+                            break;
+                        }
+                    case PacketType.INIT_MESSAGE:
+                        {
+                            InitMessagePacket packet = (InitMessagePacket)rawPacket;
+                            SetClientColor(client, packet.chatColor, true);
+                            SetClientID(client, packet.message);
+                            break;
+                        }
+                    case PacketType.COLOR:
+                        {
+                            ColorPacket packet = (ColorPacket)rawPacket;
+                            SetClientColor(client, packet.color);
+                            break;
+                        }
+                    case PacketType.LOGIN:
+                        {
+                            LoginPacket packet = (LoginPacket)rawPacket;
+                            client.UDPConnect(packet.endPoint);
+                            Thread t = new Thread(new ParameterizedThreadStart(UDPClientMethod));
+                            t.Start(client);
+                            break;
+                        }
                 }
-                return true;
             }
-            catch (IOException e)
-            {
-                Console.WriteLine("Receive Failed - " + e.Message);
-                return false;
-            }
-
+            return true;
         }
-
 
         void DisconnectClient(DisconnectPacket.DisconnectType dType, string clientID)
         {
@@ -197,13 +176,51 @@ namespace Server
                 clients.Remove(client);
         }
 
-        void ClientMethod(object clientObj)
+        void TCPClientMethod(object clientObj)
         {
             Server_Client client = (Server_Client)clientObj;
             if (client != null)
             {
-                while(true)
-                    Receive(client);
+                while (true)
+                {
+                    try
+                    {
+                        Packet rawPacket = client.TCPRead();
+                        HandlePacket(client, rawPacket);
+                    }
+                    catch (IOException e)
+                    {
+                        Console.WriteLine("TCP Receive Failed - " + e.Message);
+                        //client.Close();
+                        break;
+                    }
+                }
+            }
+        }
+
+        void UDPClientMethod(object clientObj)
+        {
+            Server_Client client = (Server_Client)clientObj;
+            if (client != null)
+            {
+                while (true)
+                {
+                    try
+                    {
+                        Packet rawPacket = client.UDPRead();
+                        HandlePacket(client, rawPacket);
+                    }
+                    catch (IOException e)
+                    {
+                        Console.WriteLine("UDP Receive Failed - " + e.Message);
+                        break;
+                    }
+                    catch(System.Net.Sockets.SocketException e)
+                    {
+                        Console.WriteLine("UDP Receive Failed - " + e.Message);
+                        break;
+                    }
+                }
             }
         }
 
@@ -221,14 +238,13 @@ namespace Server
                     client.TCPConnect(socket);
                     clients.Add(client);
                     client.ID = (clients.IndexOf(client) + 1).ToString();
-                    Thread t = new Thread(new ParameterizedThreadStart(ClientMethod));
+                    Thread t = new Thread(new ParameterizedThreadStart(TCPClientMethod));
                     t.Name = "Client " + client.ID;
                     t.Start(client);
                 }
                 catch (SocketException e)
                 {
                     Log("Log: Server Quit - " + e.Message, Color.DarkRed);
-                    //Log("Log: Server Quit");
                     break;
                 }
             }
@@ -263,28 +279,23 @@ namespace Server
         {
             connectorThread.Start();
         }
+
         public void CloseServer()
         {
             foreach (Server_Client client in clients)
-            {
                 DisconnectClient(DisconnectPacket.DisconnectType.SERVER_DEAD, client, true);
-            }
             clients.Clear();
             if (server != null) server.Stop();
             connected = false;
-            //Log("Server Disconnected");
         }
 
 
         public Server_Client GetClientFromID(string ID)
         {
             foreach (Server_Client client in clients)
-            {
                 if (clients[clients.IndexOf(client)].ID == ID)
-                {
                     return clients[clients.IndexOf(client)];
-                }
-            }
+
             return null;
         }
 
@@ -393,8 +404,7 @@ namespace Server
                 }
             }
         }
-
-
+        
         public void ProcessCommand(Message_Origins origin, string command)
         {
             if (!command.StartsWith("/"))
@@ -458,7 +468,7 @@ namespace Server
                                     }
                                 case "/help":
                                     {
-                                        Log("\nServer Commands:\n\n/rename [ID] [NewID]\n/announce [Message]\n/kill_user [ID]\n/op [ID]\n/deop [ID]\n/kill_server\n/stop_server\n/quit [ID]\n/exit [ID]\n/kill [ID]\n/new_user\n", this.logColor);
+                                        Log("\nServer Commands:\n\n/rename [ID] [NewID]\n/announce [Message]\n/kill_user [ID]\n/op [ID]\n/de-op [ID]\n/kill_server\n/stop_server\n/quit [ID]\n/exit [ID]\n/kill [ID]\n/new_user\n", this.logColor);
                                         break;
                                     }
                                 case "/kill_user":
@@ -593,7 +603,7 @@ namespace Server
                                                     {
                                                         MessageClient("You have been challenged to a game of Rock-Paper-Scissors by " + GetClientFromID(sendingClient).ColorID(), receivingClient, this.announceColor);
                                                         rpsGames.Add(new RockPaperScissorsGame(this, sendingClient, receivingClient));
-                                                        Log("Rock Paper Scissors - " + GetClientFromID(sendingClient).ColorID() + " vs " + GetClientFromID(sendingClient).ColorID(), this.logColor);
+                                                        Log("Rock Paper Scissors - " + GetClientFromID(sendingClient).ColorID() + " vs " + GetClientFromID(receivingClient).ColorID(), this.logColor);
                                                     }
                                                 }
                                                 else
@@ -762,6 +772,7 @@ namespace Server
                 }
             }
         }
+        
         void ProcessClientMessage(string command, int clientIndex)
         {
             if (command.StartsWith("/"))
@@ -890,6 +901,7 @@ namespace Server
                 }
             }
         }
+        
         RockPaperScissorsGame PlayingRPS(string clientID, bool checkMove = true)
         {
             foreach (RockPaperScissorsGame game in rpsGames)
@@ -917,6 +929,7 @@ namespace Server
                 serverWindow.UpdateServerLog(text, color);
             }
         }
+       
         void Announce(string text)
         {
             if (text == "")
@@ -929,6 +942,7 @@ namespace Server
                 MessageAllClients("Server Announcement: " + text, this.announceColor);
             }
         }
+        
         bool ClientExists(string clientID)
         {
             foreach (Server_Client recClient in clients)
@@ -940,6 +954,7 @@ namespace Server
             }
             return false;
         }
+       
         public void MessageClient(string message, int clientIndex, Color senderColor)
         {
             if (clientIndex >= 0 && clientIndex < clients.Count)
@@ -951,11 +966,12 @@ namespace Server
                 Log("Error: Message Sending Failed - Invalid Index - Message: " + message, this.errorColor);
             }
         }
+        
         void MessageClient(string message, Server_Client client, Color senderColor)
         {
-            //Send(CreatePacket(message, PacketType.CHAT_MESSAGE), client);
             client.TCPSend(CreateChatPacket(message, senderColor));
         }
+        
         public void MessageClient(string message, string clientID, Color senderColor)
         {
             if (ClientExists(clientID))
@@ -967,10 +983,12 @@ namespace Server
                 Log("Error: Message Sending Failed - Invalid ID - Message: " + message, this.errorColor);
             }
         }
+        
         void MessageAllClients(string message, Color senderColor)
         {
             MessageClients(message, clients, senderColor);
         }
+        
         void MessageClients(string message, List<Server_Client> inClients, Color senderColor)
         {
             foreach (Server_Client recClient in clients)
@@ -981,7 +999,8 @@ namespace Server
                 }
             }
         }
-        void MessageClients(string message, List<string> inClientIDs, Color senderColor)
+       
+        public void MessageClients(string message, List<string> inClientIDs, Color senderColor)
         {
             foreach (Server_Client recClient in clients)
             {
@@ -991,11 +1010,13 @@ namespace Server
                 }
             }
         }
+        
         public void Dispose()
         {
             Dispose(true);
             GC.SuppressFinalize(this);
         }
+       
         protected virtual void Dispose(bool disposing)
         {
             if (!this.disposed)
@@ -1007,6 +1028,5 @@ namespace Server
                 disposed = true;
             }
         }
-
     }
 }

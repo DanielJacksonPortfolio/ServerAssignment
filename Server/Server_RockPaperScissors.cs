@@ -1,4 +1,6 @@
-﻿namespace Server
+﻿using System.Collections.Generic;
+
+namespace Server
 {
     class RockPaperScissorsGame
     {
@@ -15,8 +17,7 @@
             player2ID = p2ID;
             this.server = server;
 
-            server.MessageClient("Choose your Move - Rock, Paper or Scissors: ", player1ID, server.messageColor);
-            server.MessageClient("Choose your Move - Rock, Paper or Scissors: ", player2ID, server.messageColor);
+            server.MessageClients("Choose your Move - Rock, Paper or Scissors: ", new List<string>() { player1ID, player2ID }, server.messageColor);
         }
 
         public bool IsComplete()

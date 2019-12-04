@@ -51,6 +51,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Server_Game.cs" />
     <Compile Include="Server_RockPaperScissors.cs" />
     <Compile Include="ServerWindow.cs">
       <SubType>Form</SubType>
