@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Drawing;
+using System.Collections.Generic;
 using System.Net;
+
+using GameTypes;
 
 namespace PacketData
 {
@@ -9,9 +12,11 @@ namespace PacketData
         INVALID,
         CHAT_MESSAGE,
         DISCONNECT,
-        CLIENT_LIST,
         COLOR,
         INIT_MESSAGE,
+        INIT_GAME,
+        GAME_INPUT,
+        GAME_UPDATE,
         LOGIN
     }
 
@@ -85,6 +90,22 @@ namespace PacketData
         {
             this.type = PacketType.LOGIN;
             this.endPoint = endPoint;
+        }
+    }
+    [Serializable]
+    public class InitGamePacket : Packet
+    {
+        public List<Player> players;
+        public Player clientPlayer;
+        public Level level;
+        public int playerID;
+        public InitGamePacket(int playerID, Level level, List<Player> players, Player clientPlayer)
+        {
+            this.type = PacketType.INIT_GAME;
+            this.playerID = playerID;
+            this.level = level;
+            this.players = players;
+            this.clientPlayer = clientPlayer;
         }
     }
 }

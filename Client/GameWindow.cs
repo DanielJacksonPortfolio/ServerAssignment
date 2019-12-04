@@ -7,14 +7,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using PacketData;
 
 namespace Client
 {
     public partial class GameWindow : Form
     {
-        public GameWindow()
+        public GameWindow(InitGamePacket packet)
         {
-            InitializeComponent();
+            InitializeComponent(packet);
         }
     }
 }

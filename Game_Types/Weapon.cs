@@ -8,19 +8,20 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
-namespace Game
+namespace GameTypes
 {
-    abstract class Weapon : GameItem
+    [Serializable]
+    public abstract class Weapon : GameItem
     {
         protected Weapon(int x, int y, int width, int height):base(x,y,width,height) { }
         protected int range;
         protected bool collision;
         protected int damage;
 
-        public Texture2D GetTexture() { return this.texture; }
+        public Tex2D GetTexture() { return this.texture; }
         public int GetRange() { return this.range; }
         public int GetDamage() { return this.damage; }
-        public void SetTexture(Texture2D texture) { this.texture = texture; }
+        public void SetTexture(Tex2D texture) { this.texture = texture; }
         public void SetRange(int range) { this.range = range; }
         public void SetDamage(int damage) { this.damage = damage; }
         public void UpdateOrigin(int x, int y) { this.hitbox.X = x; this.hitbox.Y = y; }
@@ -51,7 +52,7 @@ namespace Game
         }
         
         public void SetCollide(bool collision) { this.collision = collision; }
-        public bool Collide(Rectangle playerHitbox)
+        public bool Collide(Rect playerHitbox)
         {
             float angle = GetAngle();
             Vector2 line1Start = new Vector2(this.hitbox.X, this.hitbox.Y);

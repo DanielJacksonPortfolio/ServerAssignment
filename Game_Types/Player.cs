@@ -9,14 +9,15 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
 
-namespace Game
+namespace GameTypes
 {
-    class Player : GameItem
+    [Serializable]
+    public class Player : GameItem
     {
-        Vector2 velocity = new Vector2(0, 0);
-        Rectangle frame = new Rectangle(0, 0,35,105);
-        Color color = Color.White;
-        Color dmgColor = Color.Red;
+        Vec2 velocity = new Vec2(0, 0);
+        Rect frame = new Rect(0, 0,35,105);
+        Col color = new Col(255,255,255);
+        Col dmgColor = new Col(255,0,0);
         float gravity = 0.6f;
         bool colliding = false;
         bool collidingTop = false;
@@ -43,14 +44,14 @@ namespace Game
         {
             normHeight = height;
             equippedWeapon = new Unarmed(x,y);
-            this.color = color;
-            this.dmgColor = Color.Lerp(Color.Red, color, 0.5f);
+            this.color = new Col(color);
+            this.dmgColor = new Col(Color.Lerp(Color.Red, color, 0.5f));
            
             this.inputs = inputs;
             this.attackInputLeft = attackInput;
         }
 
-        public Vector2 GetVelocity() { return this.velocity; }
+        public Vec2 GetVelocity() { return this.velocity; }
         public bool IsDead() { return this.isDead; }
 
         public void WeaponCollide(List<Platform> platforms, List<Player> players) 
@@ -60,7 +61,7 @@ namespace Game
             {
                 MouseState newMouseState = Mouse.GetState();
                 bool attack = false;
-                if ((attackInputLeft ? newMouseState.LeftButton : newMouseState.RightButton) == ButtonState.Pressed && (attackInputLeft ? oldMouseState.LeftButton : oldMouseState.RightButton) == ButtonState.Released)
+                if ((attackInputLeft ? newMouseState.LeftButton : newMouseState.RightButton) == ButtonState.Pressed) //&& (attackInputLeft ? oldMouseState.LeftButton : oldMouseState.RightButton) == ButtonState.Released)
                 {
                     attack = true;
                     SetFrame(newMouseState.X < this.hitbox.X ? AnimFrame.PUNCH_LEFT : AnimFrame.PUNCH_RIGHT);
@@ -83,10 +84,10 @@ namespace Game
                         }
                     }
                 }
-                oldMouseState = newMouseState;
+                //oldMouseState = newMouseState;
             }
         }
-        public void SetVelocity(Vector2 newVelocity) { this.velocity = newVelocity; }
+        public void SetVelocity(Vec2 newVelocity) { this.velocity = newVelocity; }
         public void SetVelocity(float x, float y) { this.velocity.X = x; this.velocity.Y = y; }
         public virtual void AdjustVelocity(float x, float y)
         {
@@ -130,11 +131,11 @@ namespace Game
             switch(frameID)
             {
                 case AnimFrame.DUCK:
-                    frame = new Rectangle(70, 0, 35, 50);
+                    frame = new Rect(70, 0, 35, 50);
                     animationCount = 0;
                     break;
                 case AnimFrame.STAND:
-                    frame = new Rectangle(0, 0,35,100);
+                    frame = new Rect(0, 0,35,100);
                     animationCount = 0;
                     break;
                 case AnimFrame.LEFT:
@@ -142,28 +143,28 @@ namespace Game
                     {
                         animationCount = 150;
                         if (this.frameID == AnimFrame.LEFT && frame.X == 175)
-                            frame = new Rectangle(245, 0, -70, 100);
+                            frame = new Rect(245, 0, -70, 100);
                         else
-                            frame = new Rectangle(175, 0, -70, 100);
+                            frame = new Rect(175, 0, -70, 100);
                     }
                     break;
                 case AnimFrame.RIGHT:
                     animationCount = 150;
                     if (this.frameID == AnimFrame.RIGHT && frame.X == 105)
-                        frame = new Rectangle(175, 0, 70, 100);
+                        frame = new Rect(175, 0, 70, 100);
                     else
-                        frame = new Rectangle(105, 0, 70, 100);
+                        frame = new Rect(105, 0, 70, 100);
                     break;
                 case AnimFrame.JUMP:
-                    frame = new Rectangle(35, 0, 35, 100);
+                    frame = new Rect(35, 0, 35, 100);
                     animationCount = 0;
                     break;
                 case AnimFrame.PUNCH_LEFT:
-                    frame = new Rectangle(315, 0, -70, 100);
+                    frame = new Rect(315, 0, -70, 100);
                     animationCount = 200;
                     break;
                 case AnimFrame.PUNCH_RIGHT:
-                    frame = new Rectangle(245, 0, 70, 100);
+                    frame = new Rect(245, 0, 70, 100);
                     animationCount = 200;
                     break;
             }
@@ -174,8 +175,8 @@ namespace Game
         {
             if (!isDead)
             {
-                if (this.texture != null)
-                    spriteBatch.Draw(this.texture, GetDrawHitbox(), frame, damageCounter > 0 ? this.dmgColor : this.color);
+                if (this.texture.GetTexture(spriteBatch.GraphicsDevice) != null)
+                    spriteBatch.Draw(this.texture.GetTexture(spriteBatch.GraphicsDevice), GetDrawHitbox(), frame.Convert(), damageCounter > 0 ? this.dmgColor.Convert() : this.color.Convert());
                 equippedWeapon.Draw(spriteBatch);
             }
         }
@@ -185,19 +186,19 @@ namespace Game
             {
                 KeyboardState newKeyboardState = Keyboard.GetState();
 
-                if (newKeyboardState.IsKeyDown(inputs[(int)KeyBinds.JUMP]) && colliding && oldKeyboardState.IsKeyUp(inputs[(int)KeyBinds.JUMP]))
+                if (newKeyboardState.IsKeyDown(inputs[(int)KeyBinds.JUMP]) && colliding)//&& oldKeyboardState.IsKeyUp(inputs[(int)KeyBinds.JUMP]))
                     this.SetVelocity(this.velocity.X, -3.0f);
                 if (newKeyboardState.IsKeyDown(inputs[(int)KeyBinds.LEFT]) && !collidingLeft)
                     this.AdjustVelocity(-0.1f, 0);
                 if (newKeyboardState.IsKeyDown(inputs[(int)KeyBinds.RIGHT]) && !collidingRight)
                     this.AdjustVelocity(0.1f, 0);
-                if (newKeyboardState.IsKeyDown(inputs[(int)KeyBinds.DUCK]) && oldKeyboardState.IsKeyUp(inputs[(int)KeyBinds.DUCK]))
+                if (newKeyboardState.IsKeyDown(inputs[(int)KeyBinds.DUCK]))// && oldKeyboardState.IsKeyUp(inputs[(int)KeyBinds.DUCK]))
                     this.SetDuck(true);
-                if (newKeyboardState.IsKeyUp(inputs[(int)KeyBinds.DUCK]) && oldKeyboardState.IsKeyDown(inputs[(int)KeyBinds.DUCK]))
+                if (newKeyboardState.IsKeyUp(inputs[(int)KeyBinds.DUCK]))// && oldKeyboardState.IsKeyDown(inputs[(int)KeyBinds.DUCK]))
                     this.SetDuck(false);
 
 
-                oldKeyboardState = newKeyboardState;
+                //oldKeyboardState = newKeyboardState;
 
                 //Initial Update
                 colliding = false;

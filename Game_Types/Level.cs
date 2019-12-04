@@ -8,9 +8,10 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
-namespace Game
+namespace GameTypes
 {
-    class Level
+    [Serializable]
+    public class Level
     {
         List<Platform> platforms = new List<Platform>();
 
@@ -39,6 +40,14 @@ namespace Game
             foreach (Player player in players)
             {
                 player.WeaponCollide(platforms, players);
+            }
+        }
+
+        public void TexturePlatforms(string fp)
+        {
+            foreach (Platform platform in platforms)
+            {
+                platform.LoadTexture(fp);
             }
         }
     }

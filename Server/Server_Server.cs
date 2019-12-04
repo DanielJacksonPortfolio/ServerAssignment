@@ -5,9 +5,13 @@ using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading;
-using System.Drawing;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
+using GameTypes;
+
+using Color = System.Drawing.Color;
 
 namespace Server
 {
@@ -32,7 +36,8 @@ namespace Server
         bool connected = false;
         bool disposed = false;
         MemoryStream memoryStream = new MemoryStream();
-        BinaryFormatter binaryFormatter = new BinaryFormatter();
+
+        Random rand = new Random();
         public Server_Server(ServerWindow serverWindow)
         {
             this.serverWindow = serverWindow;
@@ -94,6 +99,14 @@ namespace Server
             }
         }
 
+        Microsoft.Xna.Framework.Color RandColor()
+        {
+            float r = rand.Next(0, 255);
+            float g = rand.Next(0, 255);
+            float b = rand.Next(0, 255);
+            return Microsoft.Xna.Framework.Color.FromNonPremultiplied(new Vector4(r / 255, g / 255, b / 255, 1.0f));
+        }
+
         public Packet CreateChatPacket(string message, Color color)
         {
             return new ChatMessagePacket(message, color);
@@ -105,6 +118,10 @@ namespace Server
         public Packet CreateDisconnectPacket(string message, DisconnectPacket.DisconnectType dType)
         {
             return new DisconnectPacket(message, dType);
+        }
+        public Packet CreateInitGamePacket(int playerID, Level level, List<Player> players)
+        {
+            return new InitGamePacket(playerID, level, players, null);
         }
 
         bool HandlePacket(Server_Client client, Packet rawPacket)
@@ -405,6 +422,33 @@ namespace Server
             }
         }
         
+        void StartGame()
+        {
+            Keys[] player1Controls = { Keys.W, Keys.A, Keys.D, Keys.S };
+            Keys[] player2Controls = { Keys.Up, Keys.Left, Keys.Right, Keys.Down };
+            Keys[] player3Controls = { Keys.T, Keys.F, Keys.H, Keys.G };
+            Keys[] player4Controls = { Keys.I, Keys.J, Keys.L, Keys.K };
+
+            List<Player> players = new List<Player>();
+            players.Add(new Player(475, 60, 17, 50, RandColor(), player1Controls, true));
+            players.Add(new Player(775, 60, 17, 50, RandColor(), player2Controls, false));
+            players.Add(new Player(105, 600, 17, 50, RandColor(), player3Controls, true));
+            players.Add(new Player(1005, 60, 17, 50, RandColor(), player4Controls, false));
+
+            Level level = new Level();
+         
+            level.AddPlatform(new Platform(500, 550, 200, 25));
+            level.AddPlatform(new Platform(200, 225, 100, 25));
+            level.AddPlatform(new Platform(720, 785, 720, 25));
+            level.AddPlatform(new Platform(720, 25, 720, 25));
+            level.AddPlatform(new Platform(25, 405, 25, 355));
+            level.AddPlatform(new Platform(1415, 405, 25, 355));
+            level.AddPlatform(new Platform(1100, 325, 150, 25));
+
+            for (int i = 0; i < clients.Count; ++i)
+                clients[i].TCPSend(CreateInitGamePacket(i, level, players));
+        }
+
         public void ProcessCommand(Message_Origins origin, string command)
         {
             if (!command.StartsWith("/"))
@@ -446,6 +490,16 @@ namespace Server
                                 case "/log":
                                     {
                                         Log(commandDataString, this.logColor);
+                                        break;
+                                    }
+                                case "/startgame":
+                                case "/start_game":
+                                case "/new_game":
+                                case "/newgame":
+                                case "/stick_fight":
+                                case "/stickfight":
+                                    {
+                                        StartGame();
                                         break;
                                     }
                                 case "/new_user":

@@ -8,9 +8,10 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
-namespace Game
+namespace GameTypes
 {
-    class Platform : GameItem
+    [Serializable]
+    public class Platform : GameItem
     {
         public Platform(int x, int y, int width, int height) : base(x, y, width, height)
         {
@@ -18,13 +19,13 @@ namespace Game
 
         public override void Draw(SpriteBatch spriteBatch)
         {
-            if(this.texture != null)
-                spriteBatch.Draw(this.texture, GetDrawHitbox(), Color.White);
+            if(this.texture.GetTexture(spriteBatch.GraphicsDevice) != null)
+                spriteBatch.Draw(this.texture.GetTexture(spriteBatch.GraphicsDevice), GetDrawHitbox(), Color.White);
         }
 
         public void Update(GameTime gameTime, Player player)
         {
-            Rectangle pHitbox = player.GetHitbox();
+            Rect pHitbox = player.GetHitbox();
 
             if (pHitbox.X + pHitbox.Width > this.hitbox.X - this.hitbox.Width  && 
                 pHitbox.X - pHitbox.Width < this.hitbox.X + this.hitbox.Width  && 

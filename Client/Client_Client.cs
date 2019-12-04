@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Windows.Forms;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Threading;
@@ -242,6 +243,12 @@ namespace Client
                     {
                         DisconnectPacket packet = (DisconnectPacket)rawPacket;
                         ProcessServerResponse(packet.message, Color.Black, packet.disconnectType);
+                        return;
+                    }
+                case PacketType.INIT_GAME:
+                    {
+                        InitGamePacket packet = (InitGamePacket)rawPacket;
+                        Application.Run(new GameWindow(packet));
                         return;
                     }
             }

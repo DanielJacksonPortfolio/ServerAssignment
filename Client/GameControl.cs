@@ -6,18 +6,24 @@ using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using PacketData;
 
 namespace Client
 {
     public class MonoGameWindow : MonoGameControl
     {
-        Client_Game game = new Client_Game();
+        Client_Game game;
         GameTime gameTime;
+
+        public MonoGameWindow(InitGamePacket packet)
+        {
+            game = new Client_Game(packet);
+        }
 
         protected override void Initialize()
         {
             base.Initialize();
-            game.LoadContent();
+            game.LoadContent(GraphicsDevice);
         }
 
         protected override void Update(GameTime gameTime)
@@ -35,12 +41,6 @@ namespace Client
             game.Draw(gameTime, Editor);
             Editor.spriteBatch.End();
         }
-        //protected void Draw(GameTime gameTime, MonoGame.Forms.Services.MonoGameService Editor)
-        //{
-        //    level.Draw(Editor.spriteBatch);
-        //    foreach (Player player in players)
-        //        player.Draw(Editor.spriteBatch);
-        //}
     }
 
 }

@@ -8,27 +8,29 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
-namespace Game
+namespace GameTypes
 {
-    abstract class GameItem
+    [Serializable]
+    public abstract class GameItem
     {
-        protected Rectangle hitbox = new Rectangle(0, 0, 0, 0);
-        protected Texture2D texture;
-        protected KeyboardState oldKeyboardState = Keyboard.GetState();
-        protected MouseState oldMouseState = Mouse.GetState();
+        protected Rect hitbox = new Rect(0, 0, 0, 0);
+        protected Tex2D texture;
+        //protected KeyboardState oldKeyboardState = Keyboard.GetState();
+        //protected MouseState oldMouseState = Mouse.GetState();
 
         public GameItem(int x, int y, int width, int height)
         {
-            hitbox = new Rectangle(x, y, width, height);
+            hitbox = new Rect(x, y, width, height);
         }
 
-        public void LoadTexture(Texture2D texture) { this.texture = texture; }
+        //public void LoadTexture(Tex2D texture) { this.texture = texture; }
+        public void LoadTexture(string fp) { this.texture = new Tex2D(fp); }
 
         public virtual void Draw(SpriteBatch spriteBatch) { }
-        public Rectangle GetHitbox() { return this.hitbox; }
+        public Rect GetHitbox() { return this.hitbox; }
         protected virtual Rectangle GetDrawHitbox() { return new Rectangle(this.hitbox.X - this.hitbox.Width, this.hitbox.Y - this.hitbox.Height, this.hitbox.Width * 2, this.hitbox.Height * 2); }
-        public void SetHitbox(Rectangle newBox) { this.hitbox = newBox; }
-        public void SetHitbox(int x, int y, int w, int h) { this.hitbox = new Rectangle(x, y, w, h); }
+        public void SetHitbox(Rect newBox) { this.hitbox = newBox; }
+        public void SetHitbox(int x, int y, int w, int h) { this.hitbox = new Rect(x, y, w, h); }
 
         protected bool LineLineCollision(Vector2 line1Start, Vector2 line1End, float x3, float y3, float x4, float y4)
         {
@@ -49,6 +51,7 @@ namespace Game
 
         private Texture2D GetTexture(SpriteBatch spriteBatch)
         {
+            Texture2D texture = this.texture.GetTexture(spriteBatch.GraphicsDevice);
             if (texture == null)
             {
                 texture = new Texture2D(spriteBatch.GraphicsDevice, 1, 1, false, SurfaceFormat.Color);
