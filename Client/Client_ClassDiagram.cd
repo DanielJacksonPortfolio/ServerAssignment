@@ -1,0 +1,225 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1" MembersFormat="NameAndType">
+  <Class Name="Client.ChatWindow">
+    <Position X="5" Y="0.5" Width="4.5" />
+    <NestedTypes>
+      <Delegate Name="Client.ChatWindow.UpdateServerLogDelegate" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>ChatWindow.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Delegate>
+      <Delegate Name="Client.ChatWindow.GetNameDelegate" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>ChatWindow.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Delegate>
+      <Delegate Name="Client.ChatWindow.GetColorDelegate" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>ChatWindow.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Delegate>
+      <Delegate Name="Client.ChatWindow.UpdateConnectionLabelsDelegate" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>ChatWindow.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Delegate>
+      <Delegate Name="Client.ChatWindow.CloseFormDelegate" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>ChatWindow.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Delegate>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AwAIAA4EASAQHFgvDEDBAEKSACCAAjKSDBFAhVQRBIA=</HashCode>
+      <FileName>ChatWindow.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Client.Client_Client" BaseTypeListCollapsed="true">
+    <Position X="2" Y="0.5" Width="2.75" />
+    <TypeIdentifier>
+      <HashCode>IIIAAAhAGKRAQIJAIAIAAJIAICBMIAgAKEQgCAAIQIY=</HashCode>
+      <FileName>Client_Client.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Client.Client_Game">
+    <Position X="15" Y="0.5" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAQAAAAgAAAAAgAAAAAAAAAAAQEgBAAAIAAAIAAAAAQ=</HashCode>
+      <FileName>Client_Game.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Client.Client_Main">
+    <Position X="0.5" Y="0.5" Width="1.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAA=</HashCode>
+      <FileName>Client_Main.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Client.MonoGameWindow">
+    <Position X="12.75" Y="0.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAQAAAAAAAAAAwgAAAAAAAAAAAAgAAAIAAAABAAAAAA=</HashCode>
+      <FileName>GameControl.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Client.GameWindow">
+    <Position X="9.75" Y="0.5" Width="2.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAACAAAAAAAACEAAACAAAgAAAAAAAABAAAAAA=</HashCode>
+      <FileName>GameWindow.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Game.GameItem">
+    <Position X="12.5" Y="4" Width="2.5" />
+    <TypeIdentifier />
+  </Class>
+  <Class Name="Game.Level">
+    <Position X="9.75" Y="4" Width="2.25" />
+    <TypeIdentifier />
+  </Class>
+  <Class Name="Game.Platform">
+    <Position X="9.75" Y="6" Width="2.25" />
+    <TypeIdentifier />
+  </Class>
+  <Class Name="Game.Player">
+    <Position X="9.75" Y="7.75" Width="2.5" />
+    <NestedTypes>
+      <Enum Name="Game.Player.AnimFrame" Collapsed="true">
+        <TypeIdentifier />
+      </Enum>
+    </NestedTypes>
+    <InheritanceLine Type="Game.GameItem" FixedToPoint="true">
+      <Path>
+        <Point X="13.75" Y="7.478" />
+        <Point X="13.75" Y="8.562" />
+        <Point X="12.25" Y="8.562" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier />
+  </Class>
+  <Class Name="Game.Weapon">
+    <Position X="15.25" Y="4" Width="2" />
+    <InheritanceLine Type="Game.GameItem" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="13.75" Y="7.478" />
+        <Point X="13.75" Y="8.559" />
+        <Point X="16.25" Y="8.559" />
+        <Point X="16.25" Y="8.184" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier />
+  </Class>
+  <Class Name="Game.Unarmed">
+    <Position X="17.75" Y="5.5" Width="1.25" />
+    <InheritanceLine Type="Game.Weapon" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="17.25" Y="6.125" />
+        <Point X="17.75" Y="6.125" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier />
+  </Class>
+  <Class Name="PacketData.Packet">
+    <Position X="19.5" Y="2.75" Width="1.5" />
+    <TypeIdentifier />
+  </Class>
+  <Class Name="PacketData.ChatMessagePacket">
+    <Position X="23" Y="4.25" Width="1.75" />
+    <InheritanceLine Type="PacketData.Packet" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="21" Y="3.5" />
+        <Point X="23.875" Y="3.5" />
+        <Point X="23.875" Y="4.25" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier />
+  </Class>
+  <Class Name="PacketData.InitMessagePacket">
+    <Position X="27" Y="4.25" Width="1.75" />
+    <InheritanceLine Type="PacketData.Packet" FixedFromPoint="true">
+      <Path>
+        <Point X="21" Y="3.5" />
+        <Point X="27.875" Y="3.5" />
+        <Point X="27.875" Y="4.25" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier />
+  </Class>
+  <Class Name="PacketData.ColorPacket">
+    <Position X="21.25" Y="4.25" Width="1.5" />
+    <InheritanceLine Type="PacketData.Packet" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="21" Y="3.5" />
+        <Point X="22" Y="3.5" />
+        <Point X="22" Y="4.25" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier />
+  </Class>
+  <Class Name="PacketData.DisconnectPacket">
+    <Position X="29" Y="4.25" Width="2.5" />
+    <NestedTypes>
+      <Enum Name="PacketData.DisconnectPacket.DisconnectType" Collapsed="true">
+        <TypeIdentifier />
+      </Enum>
+    </NestedTypes>
+    <InheritanceLine Type="PacketData.Packet" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="21" Y="3.5" />
+        <Point X="30.188" Y="3.5" />
+        <Point X="30.188" Y="4.25" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier />
+  </Class>
+  <Class Name="PacketData.LoginPacket">
+    <Position X="25" Y="4.25" Width="1.75" />
+    <InheritanceLine Type="PacketData.Packet" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="21" Y="3.5" />
+        <Point X="25.875" Y="3.5" />
+        <Point X="25.875" Y="4.25" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier />
+  </Class>
+  <Class Name="PacketData.InitGamePacket">
+    <Position X="21.25" Y="0.5" Width="2.25" />
+    <InheritanceLine Type="PacketData.Packet" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="21" Y="3.5" />
+        <Point X="22" Y="3.5" />
+        <Point X="22" Y="2.761" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier />
+  </Class>
+  <Class Name="PacketData.PlayerUpdatePacket">
+    <Position X="23.75" Y="0.5" Width="2.25" />
+    <InheritanceLine Type="PacketData.Packet" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="21" Y="3.5" />
+        <Point X="24.812" Y="3.5" />
+        <Point X="24.812" Y="2.377" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier />
+  </Class>
+  <Class Name="PacketData.WorldUpdatePacket">
+    <Position X="26.25" Y="0.5" Width="2.25" />
+    <InheritanceLine Type="PacketData.Packet" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="21" Y="3.5" />
+        <Point X="27.438" Y="3.5" />
+        <Point X="27.438" Y="2.184" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier />
+  </Class>
+  <Enum Name="PacketData.PacketType">
+    <Position X="17.5" Y="0.5" Width="1.75" />
+    <TypeIdentifier />
+  </Enum>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

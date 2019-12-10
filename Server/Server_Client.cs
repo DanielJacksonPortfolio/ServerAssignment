@@ -99,7 +99,7 @@ namespace Server
 
         public Packet UDPRead()
         {
-            byte[] buffer = new byte[512];
+            byte[] buffer = new byte[2048];
             int noOfIncomingBytes;
             if ((noOfIncomingBytes = udpSocket.Receive(buffer)) != 0)
                 return Deserialize(buffer);

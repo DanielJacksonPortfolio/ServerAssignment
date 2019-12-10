@@ -3,8 +3,6 @@ using System.Drawing;
 using System.Collections.Generic;
 using System.Net;
 
-using GameTypes;
-
 namespace PacketData
 {
     public enum PacketType
@@ -16,7 +14,8 @@ namespace PacketData
         INIT_MESSAGE,
         INIT_GAME,
         GAME_INPUT,
-        GAME_UPDATE,
+        GAME_PLAYER_UPDATE,
+        GAME_WORLD_UPDATE,
         LOGIN
     }
 
@@ -95,17 +94,39 @@ namespace PacketData
     [Serializable]
     public class InitGamePacket : Packet
     {
-        public List<Player> players;
-        public Player clientPlayer;
-        public Level level;
+        public List<List<float>> players;
+        public List<float> clientPlayerData;
+        public List<List<float>> level;
         public int playerID;
-        public InitGamePacket(int playerID, Level level, List<Player> players, Player clientPlayer)
+        public InitGamePacket(int playerID, List<List<float>> level, List<List<float>> players, List<float> clientPlayerData)
         {
             this.type = PacketType.INIT_GAME;
             this.playerID = playerID;
             this.level = level;
             this.players = players;
-            this.clientPlayer = clientPlayer;
+            this.clientPlayerData = clientPlayerData;
+        }
+    }
+    [Serializable]
+    public class PlayerUpdatePacket : Packet
+    {
+        public List<float> clientPlayerData;
+        public int playerID;
+        public PlayerUpdatePacket(int playerID, List<float> clientPlayerData)
+        {
+            this.type = PacketType.GAME_PLAYER_UPDATE;
+            this.playerID = playerID;
+            this.clientPlayerData = clientPlayerData;
+        }
+    }
+    [Serializable]
+    public class WorldUpdatePacket : Packet
+    {
+        public List<List<float>> players;
+        public WorldUpdatePacket(List<List<float>> players)
+        {
+            this.type = PacketType.GAME_WORLD_UPDATE;
+            this.players = players;
         }
     }
 }

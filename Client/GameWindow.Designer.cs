@@ -30,29 +30,24 @@ namespace Client
         /// </summary>
         private void InitializeComponent(InitGamePacket packet)
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(GameWindow));
-            this.MainWindow = new Client.MonoGameWindow(packet);
+            this.MainWindow = new Client.MonoGameWindow(packet, this.client);
             this.SuspendLayout();
             // 
-            // MainWindow
+            // monoGameWindow1
             // 
             this.MainWindow.Location = new System.Drawing.Point(0, 0);
             this.MainWindow.MouseHoverUpdatesOnly = false;
-            this.MainWindow.Name = "MainWindow";
-            this.MainWindow.Size = new System.Drawing.Size(2160, 1246);
+            this.MainWindow.Name = "monoGameWindow1";
+            this.MainWindow.Size = new System.Drawing.Size(1440, 810);
             this.MainWindow.TabIndex = 0;
-            this.MainWindow.Text = "Main Window";
+            this.MainWindow.Text = "monoGameWindow1";
             // 
             // GameWindow
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(2160, 1244);
+            this.ClientSize = new System.Drawing.Size(1440, 810);
             this.Controls.Add(this.MainWindow);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
-            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "GameWindow";
-            this.Text = "GameWindow";
             this.ResumeLayout(false);
 
         }

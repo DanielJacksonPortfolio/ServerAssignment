@@ -9,15 +9,15 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
 
-namespace GameTypes
+namespace Game
 {
     [Serializable]
     public class Player : GameItem
     {
-        Vec2 velocity = new Vec2(0, 0);
-        Rect frame = new Rect(0, 0,35,105);
-        Col color = new Col(255,255,255);
-        Col dmgColor = new Col(255,0,0);
+        Vector2 velocity = new Vector2(0, 0);
+        Rectangle frame = new Rectangle(0, 0,35,105);
+        Color color = new Color(255,255,255);
+        Color dmgColor = new Color(255,0,0);
         float gravity = 0.6f;
         bool colliding = false;
         bool collidingTop = false;
@@ -36,32 +36,53 @@ namespace GameTypes
         Keys[] inputs = new Keys[4];
         bool attackInputLeft = true;
 
-        enum AnimFrame { STAND,LEFT,RIGHT,JUMP,DUCK,PUNCH_RIGHT, PUNCH_LEFT }
+        public enum AnimFrame { STAND,LEFT,RIGHT,JUMP,DUCK,PUNCH_RIGHT, PUNCH_LEFT }
         enum KeyBinds { JUMP,LEFT,RIGHT,DUCK }
         enum MouseBinds { ATTACK }
+
+        public AnimFrame GetFrameID()
+        {
+            return this.frameID;
+        }
+        public int GetAnimCounter()
+        {
+            return this.animationCount;
+        }
+        public int GetDamageCounter()
+        {
+            return this.damageCounter;
+        }
+        public void SetAnimCounter(int a)
+        {
+            this.animationCount = a;
+        }
+        public void SetDamageCounter(int d)
+        {
+            this.damageCounter = d;
+        }
 
         public Player(int x, int y, int width, int height, Color color, Keys[] inputs, bool attackInput) : base(x, y, width, height)
         {
             normHeight = height;
             equippedWeapon = new Unarmed(x,y);
-            this.color = new Col(color);
-            this.dmgColor = new Col(Color.Lerp(Color.Red, color, 0.5f));
+            this.color = color;
+            this.dmgColor = Color.Lerp(Color.Red, color, 0.5f);
            
             this.inputs = inputs;
             this.attackInputLeft = attackInput;
         }
 
-        public Vec2 GetVelocity() { return this.velocity; }
+        public Vector2 GetVelocity() { return this.velocity; }
         public bool IsDead() { return this.isDead; }
 
-        public void WeaponCollide(List<Platform> platforms, List<Player> players) 
+        public void WeaponCollide(List<Platform> platforms, List<Player> players, bool input = true) 
         {
             equippedWeapon.UpdateOrigin(this.hitbox.X, this.hitbox.Y);
-            if (!this.isDead)
+            if (!this.isDead && input)
             {
                 MouseState newMouseState = Mouse.GetState();
                 bool attack = false;
-                if ((attackInputLeft ? newMouseState.LeftButton : newMouseState.RightButton) == ButtonState.Pressed) //&& (attackInputLeft ? oldMouseState.LeftButton : oldMouseState.RightButton) == ButtonState.Released)
+                if ((attackInputLeft ? newMouseState.LeftButton : newMouseState.RightButton) == ButtonState.Pressed && (attackInputLeft ? oldMouseState.LeftButton : oldMouseState.RightButton) == ButtonState.Released)
                 {
                     attack = true;
                     SetFrame(newMouseState.X < this.hitbox.X ? AnimFrame.PUNCH_LEFT : AnimFrame.PUNCH_RIGHT);
@@ -84,10 +105,10 @@ namespace GameTypes
                         }
                     }
                 }
-                //oldMouseState = newMouseState;
+                oldMouseState = newMouseState;
             }
         }
-        public void SetVelocity(Vec2 newVelocity) { this.velocity = newVelocity; }
+        public void SetVelocity(Vector2 newVelocity) { this.velocity = newVelocity; }
         public void SetVelocity(float x, float y) { this.velocity.X = x; this.velocity.Y = y; }
         public virtual void AdjustVelocity(float x, float y)
         {
@@ -126,16 +147,16 @@ namespace GameTypes
             this.ducking = ducking;
         }
 
-        void SetFrame(AnimFrame frameID)
+        public void SetFrame(AnimFrame frameID)
         {
             switch(frameID)
             {
                 case AnimFrame.DUCK:
-                    frame = new Rect(70, 0, 35, 50);
+                    frame = new Rectangle(70, 0, 35, 50);
                     animationCount = 0;
                     break;
                 case AnimFrame.STAND:
-                    frame = new Rect(0, 0,35,100);
+                    frame = new Rectangle(0, 0,35,100);
                     animationCount = 0;
                     break;
                 case AnimFrame.LEFT:
@@ -143,28 +164,28 @@ namespace GameTypes
                     {
                         animationCount = 150;
                         if (this.frameID == AnimFrame.LEFT && frame.X == 175)
-                            frame = new Rect(245, 0, -70, 100);
+                            frame = new Rectangle(245, 0, -70, 100);
                         else
-                            frame = new Rect(175, 0, -70, 100);
+                            frame = new Rectangle(175, 0, -70, 100);
                     }
                     break;
                 case AnimFrame.RIGHT:
                     animationCount = 150;
                     if (this.frameID == AnimFrame.RIGHT && frame.X == 105)
-                        frame = new Rect(175, 0, 70, 100);
+                        frame = new Rectangle(175, 0, 70, 100);
                     else
-                        frame = new Rect(105, 0, 70, 100);
+                        frame = new Rectangle(105, 0, 70, 100);
                     break;
                 case AnimFrame.JUMP:
-                    frame = new Rect(35, 0, 35, 100);
+                    frame = new Rectangle(35, 0, 35, 100);
                     animationCount = 0;
                     break;
                 case AnimFrame.PUNCH_LEFT:
-                    frame = new Rect(315, 0, -70, 100);
+                    frame = new Rectangle(315, 0, -70, 100);
                     animationCount = 200;
                     break;
                 case AnimFrame.PUNCH_RIGHT:
-                    frame = new Rect(245, 0, 70, 100);
+                    frame = new Rectangle(245, 0, 70, 100);
                     animationCount = 200;
                     break;
             }
@@ -175,30 +196,33 @@ namespace GameTypes
         {
             if (!isDead)
             {
-                if (this.texture.GetTexture(spriteBatch.GraphicsDevice) != null)
-                    spriteBatch.Draw(this.texture.GetTexture(spriteBatch.GraphicsDevice), GetDrawHitbox(), frame.Convert(), damageCounter > 0 ? this.dmgColor.Convert() : this.color.Convert());
+                if (texture != null)
+                {
+                    spriteBatch.Draw(texture, GetDrawHitbox(), frame, damageCounter > 0 ? this.dmgColor : this.color); 
+                }
                 equippedWeapon.Draw(spriteBatch);
             }
         }
-        public void Update(GameTime gameTime)
+        public void Update(GameTime gameTime, bool input = true)
         {
             if (!isDead)
             {
-                KeyboardState newKeyboardState = Keyboard.GetState();
+                if (input)
+                {
+                    KeyboardState newKeyboardState = Keyboard.GetState();
 
-                if (newKeyboardState.IsKeyDown(inputs[(int)KeyBinds.JUMP]) && colliding)//&& oldKeyboardState.IsKeyUp(inputs[(int)KeyBinds.JUMP]))
-                    this.SetVelocity(this.velocity.X, -3.0f);
-                if (newKeyboardState.IsKeyDown(inputs[(int)KeyBinds.LEFT]) && !collidingLeft)
-                    this.AdjustVelocity(-0.1f, 0);
-                if (newKeyboardState.IsKeyDown(inputs[(int)KeyBinds.RIGHT]) && !collidingRight)
-                    this.AdjustVelocity(0.1f, 0);
-                if (newKeyboardState.IsKeyDown(inputs[(int)KeyBinds.DUCK]))// && oldKeyboardState.IsKeyUp(inputs[(int)KeyBinds.DUCK]))
-                    this.SetDuck(true);
-                if (newKeyboardState.IsKeyUp(inputs[(int)KeyBinds.DUCK]))// && oldKeyboardState.IsKeyDown(inputs[(int)KeyBinds.DUCK]))
-                    this.SetDuck(false);
-
-
-                //oldKeyboardState = newKeyboardState;
+                    if (newKeyboardState.IsKeyDown(inputs[(int)KeyBinds.JUMP]) && colliding && oldKeyboardState.IsKeyUp(inputs[(int)KeyBinds.JUMP]))
+                        this.SetVelocity(this.velocity.X, -3.0f);
+                    if (newKeyboardState.IsKeyDown(inputs[(int)KeyBinds.LEFT]) && !collidingLeft)
+                        this.AdjustVelocity(-0.1f, 0);
+                    if (newKeyboardState.IsKeyDown(inputs[(int)KeyBinds.RIGHT]) && !collidingRight)
+                        this.AdjustVelocity(0.1f, 0);
+                    if (newKeyboardState.IsKeyDown(inputs[(int)KeyBinds.DUCK]) && oldKeyboardState.IsKeyUp(inputs[(int)KeyBinds.DUCK]))
+                        this.SetDuck(true);
+                    if (newKeyboardState.IsKeyUp(inputs[(int)KeyBinds.DUCK]) && oldKeyboardState.IsKeyDown(inputs[(int)KeyBinds.DUCK]))
+                        this.SetDuck(false);
+                    oldKeyboardState = newKeyboardState;
+                }
 
                 //Initial Update
                 colliding = false;

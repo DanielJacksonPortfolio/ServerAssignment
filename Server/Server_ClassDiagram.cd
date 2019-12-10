@@ -1,0 +1,65 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1" MembersFormat="NameAndType">
+  <Class Name="Server.Server_Client" BaseTypeListCollapsed="true">
+    <Position X="10.25" Y="0.5" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>AYIAAAAAiCQAgAAAAAAAgAAAACBEAECQCAAoCACAAAw=</HashCode>
+      <FileName>Server_Client.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Server.Server_Main">
+    <Position X="0.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAA=</HashCode>
+      <FileName>Server_Main.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Server.RockPaperScissorsGame">
+    <Position X="10.25" Y="7" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AQAAAAAAAEAAAABAAAAAAAAAIBAAAgKAAAAAAAAAwAI=</HashCode>
+      <FileName>Server_RockPaperScissors.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Server.Server_Server" BaseTypeListCollapsed="true">
+    <Position X="7" Y="0.5" Width="3" />
+    <TypeIdentifier>
+      <HashCode>AFOEgIBTASFAEQBGICICAYCgsAkAQAgBJUAgAAQAEAI=</HashCode>
+      <FileName>Server_Server.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Server.ServerWindow">
+    <Position X="2.25" Y="0.5" Width="4.5" />
+    <NestedTypes>
+      <Delegate Name="Server.ServerWindow.UpdateServerLogDelegate" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>ServerWindow.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Delegate>
+      <Delegate Name="Server.ServerWindow.UpdateConnectionLabelsDelegate" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>ServerWindow.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Delegate>
+      <Delegate Name="Server.ServerWindow.CloseFormDelegate" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>ServerWindow.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Delegate>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>QwAIAA4AASAAEkAvDEDBAEKSAACAAjIAHBEIgUQRAII=</HashCode>
+      <FileName>ServerWindow.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Enum Name="Server.Message_Origins">
+    <Position X="10.25" Y="10.75" Width="2" />
+    <TypeIdentifier>
+      <HashCode>gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAA=</HashCode>
+      <FileName>Server_Server.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

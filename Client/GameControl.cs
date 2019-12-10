@@ -14,11 +14,16 @@ namespace Client
     {
         Client_Game game;
         GameTime gameTime;
+        Client_Client client;
 
-        public MonoGameWindow(InitGamePacket packet)
+        public MonoGameWindow(InitGamePacket packet, Client_Client client)
         {
             game = new Client_Game(packet);
+            this.client = client;
         }
+        //public MonoGameWindow()
+        //{
+        //}
 
         protected override void Initialize()
         {
@@ -31,6 +36,12 @@ namespace Client
             base.Update(gameTime);
             game.Update(gameTime);
             this.gameTime = gameTime;
+
+            client.UDPSend(client.CreatePlayerUpdatePacket(game.GetPlayerData(),game.GetPlayerID()));
+        }
+        public void WorldUpdate(WorldUpdatePacket packet)
+        {
+            game.WorldUpdate(packet);
         }
 
         protected override void Draw()

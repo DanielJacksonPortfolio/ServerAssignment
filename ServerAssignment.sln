@@ -9,7 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Client", "Client\Client.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Packets", "Packets\Packets.csproj", "{DB4A8676-D7EF-453B-8B9D-E98B1ED7C5B2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameTypes", "Game_Types\GameTypes.csproj", "{B4856D18-225D-4594-825A-13C2C8910564}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Game", "Game_Types\Game.csproj", "{B4856D18-225D-4594-825A-13C2C8910564}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

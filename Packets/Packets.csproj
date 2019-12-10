@@ -46,10 +46,15 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Game_Types\GameTypes.csproj">
+    <ProjectReference Include="..\Game_Types\Game.csproj">
       <Project>{b4856d18-225d-4594-825a-13c2c8910564}</Project>
-      <Name>GameTypes</Name>
+      <Name>Game</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties Viade-Afterburner-Debug="DisposeMonitoring=True|DeadlockDetection=True|DeadlockPrediction=True|ThreadsMap=True" />
+    </VisualStudio>
+  </ProjectExtensions>
 </Project>

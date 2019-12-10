@@ -13,9 +13,17 @@ namespace Client
 {
     public partial class GameWindow : Form
     {
-        public GameWindow(InitGamePacket packet)
+        Client_Client client;
+
+        public GameWindow(InitGamePacket packet, Client_Client client)
         {
+            this.client = client;
             InitializeComponent(packet);
+        }
+
+        public void WorldUpdate(WorldUpdatePacket packet)
+        {
+            MainWindow.WorldUpdate(packet);
         }
     }
 }

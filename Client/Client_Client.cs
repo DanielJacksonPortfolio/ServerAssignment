@@ -19,8 +19,10 @@ namespace Client
         BinaryFormatter binaryFormatter = new BinaryFormatter();
         BinaryReader breader;
         BinaryWriter bwriter;
-        Thread readerThread;
+        Thread readerThreadTCP;
+        Thread readerThreadUDP;
         ChatWindow chatWindow;
+        GameWindow gameWindow;
         string idTemp = "";
         bool disposed = false;
         bool connected = false;
@@ -55,10 +57,11 @@ namespace Client
                 bwriter = new BinaryWriter(stream);
 
                 udpClient = new UdpClient();
+                udpClient.Client.ReceiveBufferSize = 2048;
                 udpClient.Connect(ipAddress, port);
 
                 connected = true;
-                readerThread = new Thread(TCPReceive);
+                readerThreadTCP = new Thread(TCPReceive);
                 chatWindow.StartConnection();
             }
             catch(SocketException e)
@@ -70,7 +73,8 @@ namespace Client
         }
         public void Run()
         {
-            readerThread.Start();
+            readerThreadTCP.Start();
+
             SendLogin(udpClient.Client.LocalEndPoint);
             SendInitMessage(idTemp, chatWindow.GetColor());
         }
@@ -81,15 +85,17 @@ namespace Client
                 tcpClient.Close();
             if (udpClient != null)
                 udpClient.Close();
-            if (readerThread != null)
-                readerThread.Abort();
+            if (readerThreadTCP != null)
+                readerThreadTCP.Abort();
+            if (readerThreadUDP != null)
+                readerThreadUDP.Abort();
         }
 
         public void SendChatMessage(string message)
         {
             if (message.Length != 0 && !message.StartsWith("\n"))
             {
-                if (message.Contains("\n"))
+                if (message.EndsWith("\n"))
                     message = message.Substring(0, message.Length - 1);
                 if(message.StartsWith("/udp"))
                     UDPSend(CreateChatPacket(message.Substring(4), Color.Black));
@@ -144,7 +150,7 @@ namespace Client
                 }
                 catch (IOException e)
                 {
-                    Console.WriteLine("Send Failed - " + e.Message);
+                    Console.WriteLine("Client TCP Send Failed - " + e.Message);
                 }
             }
             else
@@ -163,7 +169,11 @@ namespace Client
             }
             catch (IOException e)
             {
-                Console.WriteLine("UDP Send Failed - " + e.Message);
+                Console.WriteLine("Client UDP Send Failed - " + e.Message);
+            }
+            catch (ObjectDisposedException e)
+            {
+                Console.WriteLine("Client UDP Send Failed - " + e.Message);
             }
         }
 
@@ -220,6 +230,11 @@ namespace Client
         {
             return new LoginPacket(endPoint);
         }
+        
+        public Packet CreatePlayerUpdatePacket(List<float> playerData, int playerID)
+        {
+            return new PlayerUpdatePacket(playerID, playerData);
+        }
 
         void HandlePacket(Packet rawPacket)
         {
@@ -235,8 +250,8 @@ namespace Client
                     {
                         LoginPacket packet = (LoginPacket)rawPacket;
                         udpClient.Connect((IPEndPoint)packet.endPoint);
-                        Thread t = new Thread(UDPServerResponse);
-                        t.Start();
+                        readerThreadUDP = new Thread(UDPReceive);
+                        readerThreadUDP.Start();
                         break;
                     }
                 case PacketType.DISCONNECT:
@@ -248,10 +263,22 @@ namespace Client
                 case PacketType.INIT_GAME:
                     {
                         InitGamePacket packet = (InitGamePacket)rawPacket;
-                        Application.Run(new GameWindow(packet));
+                        this.gameWindow = new GameWindow(packet, this);
+                        Thread t = new Thread(RunGame);
+                        t.Start();
+                        return;
+                    }
+                case PacketType.GAME_WORLD_UPDATE:
+                    {
+                        this.gameWindow.WorldUpdate((WorldUpdatePacket)rawPacket);
                         return;
                     }
             }
+        }
+
+        void RunGame()
+        {
+            Application.Run(gameWindow);
         }
 
         public void TCPReceive()
@@ -271,18 +298,25 @@ namespace Client
             }
             catch(IOException e)
             {
-                Console.WriteLine("TCP Receive Failed - "+e.Message);
+                Console.WriteLine("Client TCP Receive Failed - " + e.Message);
             }
         }
         public void UDPReceive()
         {
             try
-            {   
-                HandlePacket(UDPRead());
+            {
+                while (true)
+                {
+                    HandlePacket(UDPRead());
+                }
             }
             catch(IOException e)
             {
-                Console.WriteLine("UDP Receive Failed - "+e.Message);
+                Console.WriteLine("Client UDP Receive Failed - " + e.Message);
+            }
+            catch(SocketException e)
+            {
+                Console.WriteLine("Client UDP Receive Failed - " + e.Message);
             }
         }
 
@@ -304,12 +338,6 @@ namespace Client
             }
             chatWindow.UpdateServerLog(serverText, color);
         }
-
-        void UDPServerResponse()
-        {
-            Console.WriteLine("UDP FTW");
-        }
-
 
         public void Dispose()
         {

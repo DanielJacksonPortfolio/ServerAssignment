@@ -7,8 +7,8 @@
     <ProjectGuid>{B4856D18-225D-4594-825A-13C2C8910564}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>GameTypes</RootNamespace>
-    <AssemblyName>GameTypes</AssemblyName>
+    <RootNamespace>Game</RootNamespace>
+    <AssemblyName>Game</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -78,4 +78,9 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\MonoGame.Forms.DX.2.3.8\Build\MonoGame.Forms.DX.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\MonoGame.Forms.DX.2.3.8\Build\MonoGame.Forms.DX.targets'))" />
   </Target>
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties Viade-Afterburner-Debug="DisposeMonitoring=True|DeadlockDetection=True|DeadlockPrediction=True|ThreadsMap=True" />
+    </VisualStudio>
+  </ProjectExtensions>
 </Project>

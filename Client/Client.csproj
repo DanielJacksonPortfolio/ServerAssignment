@@ -116,6 +116,7 @@
     <None Include="bin\Debug\Content\obj\Windows\Content\2D\mario.mgcontent" />
     <None Include="bin\Debug\Content\obj\Windows\Content\2D\platform.mgcontent" />
     <None Include="bin\Debug\Content\obj\Windows\Content\2D\Stick.mgcontent" />
+    <None Include="Client_ClassDiagram.cd" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -139,9 +140,9 @@
     <Content Include="bin\Debug\Content\2D\Stick.png" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Game_Types\GameTypes.csproj">
+    <ProjectReference Include="..\Game_Types\Game.csproj">
       <Project>{b4856d18-225d-4594-825a-13c2c8910564}</Project>
-      <Name>GameTypes</Name>
+      <Name>Game</Name>
     </ProjectReference>
     <ProjectReference Include="..\Packets\Packets.csproj">
       <Project>{db4a8676-d7ef-453b-8b9d-e98b1ed7c5b2}</Project>
@@ -156,4 +157,9 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\MonoGame.Forms.DX.2.3.8\Build\MonoGame.Forms.DX.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\MonoGame.Forms.DX.2.3.8\Build\MonoGame.Forms.DX.targets'))" />
   </Target>
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties Viade-Afterburner-Debug="DisposeMonitoring=True|DeadlockDetection=True|DeadlockPrediction=True|ThreadsMap=True" />
+    </VisualStudio>
+  </ProjectExtensions>
 </Project>

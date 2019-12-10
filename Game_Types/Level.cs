@@ -8,7 +8,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
-namespace GameTypes
+namespace Game
 {
     [Serializable]
     public class Level
@@ -30,24 +30,26 @@ namespace GameTypes
 
         public void Update(GameTime gameTime, List<Player> players)
         {
-            foreach(Platform platform in platforms)
-            {
-                foreach (Player player in players)
-                {
-                    platform.Update(gameTime, player);
-                }
-            }
             foreach (Player player in players)
             {
-                player.WeaponCollide(platforms, players);
+                player.WeaponCollide(platforms, players, false);
             }
         }
+        
+        public void Update(GameTime gameTime, Player player, List<Player> players)
+        {
+            foreach(Platform platform in platforms)
+            {
+                platform.Update(gameTime, player);
+            }
+            player.WeaponCollide(platforms, players);
+        }
 
-        public void TexturePlatforms(string fp)
+        public void TexturePlatforms(Texture2D tex)
         {
             foreach (Platform platform in platforms)
             {
-                platform.LoadTexture(fp);
+                platform.LoadTexture(tex);
             }
         }
     }

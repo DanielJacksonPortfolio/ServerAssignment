@@ -7,9 +7,6 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using GameTypes;
 
 using Color = System.Drawing.Color;
 
@@ -32,6 +29,9 @@ namespace Server
         public Color announceColor = Color.RoyalBlue;
         public Color messageColor = Color.SaddleBrown;
         public Color logColor = Color.Yellow;
+
+        List<List<float>> players = new List<List<float>>();
+        List<List<float>> level = new List<List<float>>();
 
         bool connected = false;
         bool disposed = false;
@@ -119,9 +119,14 @@ namespace Server
         {
             return new DisconnectPacket(message, dType);
         }
-        public Packet CreateInitGamePacket(int playerID, Level level, List<Player> players)
+        public Packet CreateInitGamePacket(int playerID, List<List<float>> level, List<List<float>> players, List<float> clientPlayer)
         {
-            return new InitGamePacket(playerID, level, players, null);
+            return new InitGamePacket(playerID, level, players, clientPlayer);
+        }
+        
+        public Packet CreateWorldUpdatePacket(List<List<float>> players)
+        {
+            return new WorldUpdatePacket(players);
         }
 
         bool HandlePacket(Server_Client client, Packet rawPacket)
@@ -155,6 +160,11 @@ namespace Server
                             client.UDPConnect(packet.endPoint);
                             Thread t = new Thread(new ParameterizedThreadStart(UDPClientMethod));
                             t.Start(client);
+                            break;
+                        }
+                    case PacketType.GAME_PLAYER_UPDATE:
+                        {
+                            UpdatePlayers((PlayerUpdatePacket)rawPacket);
                             break;
                         }
                 }
@@ -229,12 +239,12 @@ namespace Server
                     }
                     catch (IOException e)
                     {
-                        Console.WriteLine("UDP Receive Failed - " + e.Message);
+                        Console.WriteLine("Server UDP Receive Failed - " + e.Message);
                         break;
                     }
                     catch(System.Net.Sockets.SocketException e)
                     {
-                        Console.WriteLine("UDP Receive Failed - " + e.Message);
+                        Console.WriteLine("Server UDP Receive Failed - " + e.Message);
                         break;
                     }
                 }
@@ -289,6 +299,10 @@ namespace Server
             {
                 Console.WriteLine("Exception: Connection error - " + e.Message);
                 connected = false;
+            }
+            catch (SocketException e)
+            {
+                Console.WriteLine("Exception: Connection error - " + e.Message);
             }
         }
 
@@ -421,32 +435,80 @@ namespace Server
                 }
             }
         }
+
+        void UpdatePlayers(PlayerUpdatePacket packet)
+        {
+            players[packet.playerID] = packet.clientPlayerData;
+            for (int i = 0; i < clients.Count; ++i)
+            {
+                if (i != packet.playerID)
+                {
+                    List<List<float>> otherPlayers = new List<List<float>>();
+                    for (int j = 0; j < players.Count; ++j)
+                    {
+                        if (i != j)
+                        {
+                            List<float> playerData = new List<float>();
+                            playerData.Add(players[j][0]);
+                            playerData.Add(players[j][1]);
+                            playerData.Add(players[j][2]);
+                            //playerData.Add(players[j][3]);
+                            //playerData.Add(players[j][4]);
+                            otherPlayers.Add(playerData);
+                        }
+                    }
+                    clients[i].UDPSend(CreateWorldUpdatePacket(otherPlayers));
+                }
+            }
+        }
         
         void StartGame()
         {
-            Keys[] player1Controls = { Keys.W, Keys.A, Keys.D, Keys.S };
-            Keys[] player2Controls = { Keys.Up, Keys.Left, Keys.Right, Keys.Down };
-            Keys[] player3Controls = { Keys.T, Keys.F, Keys.H, Keys.G };
-            Keys[] player4Controls = { Keys.I, Keys.J, Keys.L, Keys.K };
-
-            List<Player> players = new List<Player>();
-            players.Add(new Player(475, 60, 17, 50, RandColor(), player1Controls, true));
-            players.Add(new Player(775, 60, 17, 50, RandColor(), player2Controls, false));
-            players.Add(new Player(105, 600, 17, 50, RandColor(), player3Controls, true));
-            players.Add(new Player(1005, 60, 17, 50, RandColor(), player4Controls, false));
-
-            Level level = new Level();
-         
-            level.AddPlatform(new Platform(500, 550, 200, 25));
-            level.AddPlatform(new Platform(200, 225, 100, 25));
-            level.AddPlatform(new Platform(720, 785, 720, 25));
-            level.AddPlatform(new Platform(720, 25, 720, 25));
-            level.AddPlatform(new Platform(25, 405, 25, 355));
-            level.AddPlatform(new Platform(1415, 405, 25, 355));
-            level.AddPlatform(new Platform(1100, 325, 150, 25));
+            
 
             for (int i = 0; i < clients.Count; ++i)
-                clients[i].TCPSend(CreateInitGamePacket(i, level, players));
+            {
+                List<float> playerData = new List<float>();
+                Microsoft.Xna.Framework.Color playerColor = RandColor();
+                playerData.Add(400 + 150 * i);
+                playerData.Add(150);
+                playerData.Add(playerColor.R);
+                playerData.Add(playerColor.G);
+                playerData.Add(playerColor.B);
+
+                players.Add(playerData);
+            }
+
+            level.Add(AddPlatform(500, 550, 200, 25));
+            level.Add(AddPlatform(200, 225, 100, 25));
+            level.Add(AddPlatform(720, 785, 720, 25));
+            level.Add(AddPlatform(720, 25, 720, 25));
+            level.Add(AddPlatform(25, 405, 25, 355));
+            level.Add(AddPlatform(1415, 405, 25, 355));
+            level.Add(AddPlatform(1100, 325, 150, 25));
+            for (int i = 0; i < clients.Count; ++i)
+            {
+                List<List<float>> otherPlayers = new List<List<float>>();
+                List<float> clientPlayer = new List<float>();
+                for(int j = 0; j < players.Count; ++j)
+                {
+                    if (i == j)
+                        clientPlayer = players[j];
+                    else
+                        otherPlayers.Add(players[j]);
+                }
+                clients[i].TCPSend(CreateInitGamePacket(i, level, otherPlayers, clientPlayer));
+            }
+        }
+
+        List<float> AddPlatform(int x, int y, int w, int h)
+        {
+            List<float> platform = new List<float>();
+            platform.Add(x);
+            platform.Add(y);
+            platform.Add(w);
+            platform.Add(h);
+            return platform;
         }
 
         public void ProcessCommand(Message_Origins origin, string command)
@@ -490,6 +552,11 @@ namespace Server
                                 case "/log":
                                     {
                                         Log(commandDataString, this.logColor);
+                                        break;
+                                    }
+                                case "/udp":
+                                    {
+                                        MessageClient("UDP Message: "+commandData[1], commandData[0], this.logColor, true);
                                         break;
                                     }
                                 case "/startgame":
@@ -1009,11 +1076,11 @@ namespace Server
             return false;
         }
        
-        public void MessageClient(string message, int clientIndex, Color senderColor)
+        public void MessageClient(string message, int clientIndex, Color senderColor, bool udp = false)
         {
             if (clientIndex >= 0 && clientIndex < clients.Count)
             {
-                MessageClient(message, clients[clientIndex], senderColor);
+                MessageClient(message, clients[clientIndex], senderColor, udp);
             }
             else
             {
@@ -1021,16 +1088,19 @@ namespace Server
             }
         }
         
-        void MessageClient(string message, Server_Client client, Color senderColor)
+        void MessageClient(string message, Server_Client client, Color senderColor, bool udp = false)
         {
-            client.TCPSend(CreateChatPacket(message, senderColor));
+            if(udp)
+                client.UDPSend(CreateChatPacket(message, senderColor));
+            else
+                client.TCPSend(CreateChatPacket(message, senderColor));
         }
         
-        public void MessageClient(string message, string clientID, Color senderColor)
+        public void MessageClient(string message, string clientID, Color senderColor, bool udp = false)
         {
             if (ClientExists(clientID))
             {
-                MessageClient(message, GetClientFromID(clientID), senderColor);
+                MessageClient(message, GetClientFromID(clientID), senderColor, udp);
             }
             else
             {
